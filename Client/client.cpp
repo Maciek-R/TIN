@@ -8,24 +8,22 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
-  
-#define TRUE   1
-#define FALSE  0
-#define PORT 8888
- 
+
 #include "client.h"
 
 Client::Client()
+	: PORT{8888}
 {
+	//Never do that in costructor.
 	if( (mainSocket = socket(AF_INET , SOCK_STREAM , 0)) == 0) 
 	{
 		perror("Creating socket error");
 		exit(EXIT_FAILURE);
 	}
-	connectToServer();
+	ConnectToServer();
 }
 
-void Client::connectToServer()
+void Client::ConnectToServer()
 {
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -37,10 +35,10 @@ void Client::connectToServer()
 		exit(EXIT_FAILURE);
 	}
 
-	readInitMessage();
-	run();
+	ReadInitMessage();
+	Run();
 }
-void Client::readInitMessage()
+void Client::ReadInitMessage()
 {
 	if((valread = read(mainSocket, buffer, 1024))==0)
 	{
@@ -52,7 +50,7 @@ void Client::readInitMessage()
 		printf("From Server: %s", buffer);
 	}
 }
-void Client::run()
+void Client::Run()
 {	
 	while(fgets(buffer, 51, stdin) != NULL)
 	{	
