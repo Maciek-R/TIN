@@ -13,40 +13,37 @@
 #include <sys/time.h>
 
 #include "../Common/ticket.h"
-
-#define TRUE	1
-#define FALSE	0
-
-#define MAX_CLIENTS	10
-#define PORT 		8888
+#include <string>
+#include <array>
 
 class TicketServer
 {
 private:
-	int opt = TRUE;
+	const int PORT;
+
+	bool opt;
 	int addrlen;
 	int sd, max_sd;
-	char *message = "SERVER\n";
+	std::string message;
 	int mainSocket;
-	int clientSockets[MAX_CLIENTS];
+	std::array<int, 10> clientSockets;
 
 	struct sockaddr_in address;
 	char buffer[1024];	
 	fd_set readfds;
 
 
-	void createMainSocket();
-	void initClients();
-	void bindMainSocket();
-	void listenMainSocket();
-	void setMaxConnections();	
+	void CreateMainSocket();
+	void InitClients();
+	void BindMainSocket();
+	void ListenMainSocket();
 
 	void AcceptNewConnection();
-	void SendMessage(int socket, char * message);
+	void SendMessage(int socket, const char* message) const;
 	void SetNewSocket(int socket);
 public:
 	TicketServer();
-	void run();
+	void Run();
 	
 };
 

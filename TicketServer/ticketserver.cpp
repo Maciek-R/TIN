@@ -1,33 +1,37 @@
 #include "ticketserver.h"
+#include <vector>
+#include <iostream>
 
 TicketServer::TicketServer()
+	: PORT{8888}, opt{true}, message{"SERVER\0"}
 {
-	initClients();
-	createMainSocket();
-	bindMainSocket();	
-	listenMainSocket();
+	InitClients();
+	CreateMainSocket();
+	BindMainSocket();
+	ListenMainSocket();
 }
-void TicketServer::createMainSocket()
+void TicketServer::CreateMainSocket()
 {
 	if((mainSocket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
 	{
-		perror("Creating Server socket error");
+		std::cout << "Creating Server socket error\n";
 		exit(EXIT_FAILURE);
 	}
 	//setting multiple connections
-	if(setsockopt(mainSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt))<0)
+	int option = static_cast<int>(opt);
+	if(setsockopt(mainSocket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option)) < 0)
 	{
-		perror("Setting sockopt error");
+		std::cerr << "Setting sockopt error\n";
 		exit(EXIT_FAILURE);
 	}
 
 }
-void TicketServer::initClients()
+void TicketServer::InitClients()
 {
-	for(int i=0; i<MAX_CLIENTS; ++i)
+	for(std::size_t i = 0; i < clientSockets.size(); ++i)
 		clientSockets[i]=0;
 }
-void TicketServer::bindMainSocket()
+void TicketServer::BindMainSocket()
 {
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
@@ -36,35 +40,35 @@ void TicketServer::bindMainSocket()
 
 	if(bind(mainSocket, (struct sockaddr *)&address, sizeof(address)) < 0)
 	{
-		perror("Binding Error");
+		std::cerr << "Binding Error\n";
 		exit(EXIT_FAILURE);
 	}
 }
 
-void TicketServer::listenMainSocket()
+void TicketServer::ListenMainSocket()
 {	
 	if (listen(mainSocket, 3) < 0)
 	{
-		perror("Listen Error");
+		std::cerr << "Listen Error\n";
 		exit(EXIT_FAILURE);
 	}
 	
 	addrlen = sizeof(address);
-	printf("Listen on port %d\n", PORT);
+	std::cout << "Listening on port " << PORT << '\n';
 }
 
-void TicketServer::run()
+void TicketServer::Run()
 {
-	printf("Waiting for connections\n");
+	std::cout << "Waiting for connections\n";
 
-	while(TRUE)
+	while(true)
 	{
 		FD_ZERO(&readfds);
 		FD_SET(mainSocket, &readfds);
 		
 		max_sd = mainSocket;	
 	
-		for(int i=0; i<MAX_CLIENTS; ++i)
+		for(std::size_t i = 0; i < clientSockets.size(); ++i)
 		{
 			sd = clientSockets[i];
 			//if socket exists
@@ -74,11 +78,11 @@ void TicketServer::run()
 				max_sd = sd;
 		}
 
-		int activity = select(max_sd+1, &readfds, NULL, NULL, NULL);
+		int activity = select(max_sd+1, &readfds, nullptr, nullptr, nullptr);
 	
 		if((activity < 0) && (errno!=EINTR))
 		{
-			printf("Error in select");
+			std::cout << "Error in select\n";
 		}
 		//new Connection
 		if(FD_ISSET(mainSocket, &readfds))
@@ -88,17 +92,17 @@ void TicketServer::run()
 		//message or disconnect
 		else
 		{
-			for(int i=0; i<MAX_CLIENTS; ++i)
+			for(std::size_t i = 0; i < clientSockets.size(); ++i)
 			{
 				sd = clientSockets[i];
 				if(FD_ISSET(sd, &readfds))
 				{
-					int valread = read( sd , buffer, 1024);
+					int bytesRead = read( sd , buffer, 1024);
 					//Somebody disconnected , get his details and print
-					if (valread == 0)
+					if (bytesRead == 0)
 					{
 						getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);
-						printf("Host disconnected , ip %s , port %d \n" , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
+						std::cout << "Host disconnected\n\tIP: " << inet_ntoa(address.sin_addr)<< "\n\tport: " <<  ntohs(address.sin_port) << '\n';
 
 						close( sd );
 						clientSockets[i] = 0;
@@ -106,16 +110,16 @@ void TicketServer::run()
 					//message
 					else
 					{	
-						buffer[valread] = '\0';
-						printf("Message from Client nr %d: %s\n", i, buffer);
+						buffer[bytesRead] = '\0';
+						std::cout << "Message from Client nr " <<  i  << "\n\t" << buffer;
 
 						Ticket ticket;
 						const char* buff = ticket.ToCharArray();
 
 						if( send(sd , buff , strlen(buff) , 0 ) != strlen(buff))
-							perror("Error while sending message to client");
+							std::cerr << "Error while sending message to client\n";
 						else
-							puts("Message to client send successfully");
+							std::cout << "Message to client send successfully\n";
 					}
 				}
 			}
@@ -132,24 +136,24 @@ void TicketServer::AcceptNewConnection()
 	newSocket = accept(mainSocket, (struct sockaddr*)&address, (socklen_t*)&addrlen);
 	if(newSocket < 0)
 	{
-		perror("Accept Error");
+		std::cerr << "Accept Error\n";
 		exit(EXIT_FAILURE);
 	}
-	printf("New Connection, socket fd is %d, ip is: %s, port: %d\n", newSocket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+	std::cout << "New Connection, socket fd is " << newSocket << "\n\tIP: " << inet_ntoa(address.sin_addr) << "\n\tPort: " << ntohs(address.sin_port) << "\n";
 	
-	SendMessage(newSocket, message);
+	SendMessage(newSocket, message.c_str());
 	SetNewSocket(newSocket);
 }
-void TicketServer::SendMessage(int socket, char * message)
+void TicketServer::SendMessage(int socket, const char * message) const
 {
 	if(send(socket, message, strlen(message), 0)!= strlen(message))
-		perror("Error while sending message to client");
+		std::cerr << "Error while sending message to client\n";
 	else
-		puts("Message send successfully");
+		std::cout << "Message send successfully\n";
 }
 void TicketServer::SetNewSocket(int socket)
 {
-	for(int i=0; i<MAX_CLIENTS; ++i)
+	for(std::size_t i = 0; i < clientSockets.size(); ++i)
 	{
 		if(clientSockets[i]==0)
 		{
