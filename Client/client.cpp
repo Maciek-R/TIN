@@ -1,14 +1,3 @@
-#include <stdio.h>
-#include <string.h>   //strlen
-#include <stdlib.h>
-#include <errno.h>
-#include <unistd.h>   //close
-#include <arpa/inet.h>    //close
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
-
 #include "client.h"
 
 Client::Client()
@@ -36,7 +25,7 @@ void Client::ConnectToServer()
 	}
 
 	ReadInitMessage();
-	Run();
+	//Run();
 }
 void Client::ReadInitMessage()
 {
@@ -58,6 +47,27 @@ void Client::Run()
 			perror("error while sending message");
 	}	
 
+	close(mainSocket);
+}
+void Client::SendRequestForTicket()
+{
+	buffer[0] = 'T';
+	buffer[1] = '\0';
+
+	printf("Requesting for Ticket\n");
+	if (write(mainSocket, buffer, sizeof buffer) == -1)
+	{
+		perror("Error request Ticket");
+	}
+	
+	if((valread = read(mainSocket, buffer, 1024)) == 0)
+	{
+		perror("Error receiving Ticket");
+	}
+	else{
+		buffer[valread] = '\0';
+		printf("Got Ticket: %s\n", buffer);
+	}
 	close(mainSocket);
 }
       

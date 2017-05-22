@@ -1,13 +1,13 @@
-#include "server.h"
+#include "ticketserver.h"
 
-Server::Server()
+TicketServer::TicketServer()
 {
 	initClients();
 	createMainSocket();
 	bindMainSocket();	
 	listenMainSocket();
 }
-void Server::createMainSocket()
+void TicketServer::createMainSocket()
 {
 	if((mainSocket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
 	{
@@ -22,12 +22,12 @@ void Server::createMainSocket()
 	}
 
 }
-void Server::initClients()
+void TicketServer::initClients()
 {
 	for(int i=0; i<MAX_CLIENTS; ++i)
 		clientSockets[i]=0;
 }
-void Server::bindMainSocket()
+void TicketServer::bindMainSocket()
 {
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
@@ -41,7 +41,7 @@ void Server::bindMainSocket()
 	}
 }
 
-void Server::listenMainSocket()
+void TicketServer::listenMainSocket()
 {	
 	if (listen(mainSocket, 3) < 0)
 	{
@@ -53,7 +53,7 @@ void Server::listenMainSocket()
 	printf("Listen on port %d\n", PORT);
 }
 
-void Server::run()
+void TicketServer::run()
 {
 	printf("Waiting for connections\n");
 
@@ -80,33 +80,12 @@ void Server::run()
 		{
 			printf("Error in select");
 		}
+		//new Connection
 		if(FD_ISSET(mainSocket, &readfds))
 		{
-			int newSocket;
-			newSocket = accept(mainSocket, (struct sockaddr*)&address, (socklen_t*)&addrlen);
-			if(newSocket < 0)
-			{
-				perror("Accept Error");
-				exit(EXIT_FAILURE);
-			}
-			printf("New Connection, socket fd is %d, ip is: %s, port: %d\n", newSocket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-			
-			if(send(newSocket, message, strlen(message), 0)!= strlen(message))
-				perror("Error while sending message to client");
-			else
-				puts("Init message send successfully");
-			
-			for(int i=0; i<MAX_CLIENTS; ++i)
-			{
-				if(clientSockets[i]==0)
-				{
-					clientSockets[i] = newSocket;
-					break;
-				}
-
-			}
-				
+			AcceptNewConnection();
 		}
+		//message or disconnect
 		else
 		{
 			for(int i=0; i<MAX_CLIENTS; ++i)
@@ -115,24 +94,28 @@ void Server::run()
 				if(FD_ISSET(sd, &readfds))
 				{
 					int valread = read( sd , buffer, 1024);
+					//Somebody disconnected , get his details and print
 					if (valread == 0)
 					{
-					    //Somebody disconnected , get his details and print
 					    getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);
 					    printf("Host disconnected , ip %s , port %d \n" , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
 					      
-					    //Close the socket
 					    close( sd );
 					    clientSockets[i] = 0;
 					}
-					  
-					//Echo back the message that came in
+					//message
 					else
-					{
-					 
+					{	
 					    buffer[valread] = '\0';
-					    printf("Message from Client nr %d: %s", i, buffer);
-					    send(sd , buffer , strlen(buffer) , 0 );
+					    printf("Message from Client nr %d: %s\n", i, buffer);
+
+						Ticket ticket;
+						char* buff = ticket.ToCharArray();
+					   
+						if( send(sd , buff , strlen(buff) , 0 ) != strlen(buff))
+							perror("Error while sending message to client");
+						else
+							puts("Message to client send successfully");
 					}
 				}
 			}		
@@ -141,4 +124,37 @@ void Server::run()
 	}
 
 
+}
+
+void TicketServer::AcceptNewConnection()
+{
+	int newSocket;
+	newSocket = accept(mainSocket, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+	if(newSocket < 0)
+	{
+		perror("Accept Error");
+		exit(EXIT_FAILURE);
+	}
+	printf("New Connection, socket fd is %d, ip is: %s, port: %d\n", newSocket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+	
+	SendMessage(newSocket, message);
+	SetNewSocket(newSocket);
+}
+void TicketServer::SendMessage(int socket, char * message)
+{
+	if(send(socket, message, strlen(message), 0)!= strlen(message))
+		perror("Error while sending message to client");
+	else
+		puts("Message send successfully");
+}
+void TicketServer::SetNewSocket(int socket)
+{
+	for(int i=0; i<MAX_CLIENTS; ++i)
+	{
+		if(clientSockets[i]==0)
+		{
+			clientSockets[i] = socket;
+			break;
+		}
+	}
 }

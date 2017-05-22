@@ -12,13 +12,15 @@
 #include <netinet/in.h>
 #include <sys/time.h>
 
+#include "ticket.h"
+
 #define TRUE	1
 #define FALSE	0
 
 #define MAX_CLIENTS	10
 #define PORT 		8888
 
-class Server
+class TicketServer
 {
 private:
 	int opt = TRUE;
@@ -38,8 +40,12 @@ private:
 	void bindMainSocket();
 	void listenMainSocket();
 	void setMaxConnections();	
+
+	void AcceptNewConnection();
+	void SendMessage(int socket, char * message);
+	void SetNewSocket(int socket);
 public:
-	Server();
+	TicketServer();
 	void run();
 	
 };
