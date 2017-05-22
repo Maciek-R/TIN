@@ -12,7 +12,7 @@
 #include <netinet/in.h>
 #include <sys/time.h>
 
-#include "ticket.h"
+#include "../Common/ticket.h"
 
 #define TRUE	1
 #define FALSE	0

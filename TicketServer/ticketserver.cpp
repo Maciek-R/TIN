@@ -97,28 +97,28 @@ void TicketServer::run()
 					//Somebody disconnected , get his details and print
 					if (valread == 0)
 					{
-					    getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);
-					    printf("Host disconnected , ip %s , port %d \n" , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
-					      
-					    close( sd );
-					    clientSockets[i] = 0;
+						getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);
+						printf("Host disconnected , ip %s , port %d \n" , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
+
+						close( sd );
+						clientSockets[i] = 0;
 					}
 					//message
 					else
 					{	
-					    buffer[valread] = '\0';
-					    printf("Message from Client nr %d: %s\n", i, buffer);
+						buffer[valread] = '\0';
+						printf("Message from Client nr %d: %s\n", i, buffer);
 
 						Ticket ticket;
-						char* buff = ticket.ToCharArray();
-					   
+						const char* buff = ticket.ToCharArray();
+
 						if( send(sd , buff , strlen(buff) , 0 ) != strlen(buff))
 							perror("Error while sending message to client");
 						else
 							puts("Message to client send successfully");
 					}
 				}
-			}		
+			}
 		
 		}
 	}

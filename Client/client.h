@@ -13,7 +13,7 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 
 
-#include "ticket.h"
+#include "../Common/ticket.h"
 
 class Client
 {
@@ -24,13 +24,13 @@ public:
 private:
 	const int PORT;
 	int mainSocket;
-	int valread;
+	int bytesRead;
 	struct sockaddr_in address;
 	char buffer[1024];
 	Ticket ticket;
 
 	void ConnectToServer();
-	void ReadInitMessage();	
+	void ReadInitMessage();
 };
 
 #endif

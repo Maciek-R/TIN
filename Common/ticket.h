@@ -3,11 +3,12 @@
 
 class Ticket
 {
+public:
+	Ticket();
+	const char* ToCharArray();
+
 private:
 
-public:
-    Ticket();
-    char* ToCharArray();
 };
 
 #endif
