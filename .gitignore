@@ -1,2 +1,5 @@
 Server/server
 Client/client
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
