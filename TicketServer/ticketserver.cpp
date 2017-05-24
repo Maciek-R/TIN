@@ -3,7 +3,7 @@
 #include <iostream>
 
 TicketServer::TicketServer()
-	: PORT{8888}, opt{true}, message{"SERVER\0"}
+	: PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, opt{true}, message{"SERVER\0"}
 {
 	InitClients();
 	CreateMainSocket();
@@ -12,14 +12,14 @@ TicketServer::TicketServer()
 }
 void TicketServer::CreateMainSocket()
 {
-	if((mainSocket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+	if((mainSocket = socket(AF_INET, SOCK_DGRAM, 0)) == 0)
 	{
 		std::cout << "Creating Server socket error\n";
 		exit(EXIT_FAILURE);
 	}
-	//setting multiple connections
+	//setting to accept broadcast
 	int option = static_cast<int>(opt);
-	if(setsockopt(mainSocket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option)) < 0)
+	if(setsockopt(mainSocket, SOL_SOCKET, SO_BROADCAST, &option, sizeof(option)) < 0)
 	{
 		std::cerr << "Setting sockopt error\n";
 		exit(EXIT_FAILURE);
@@ -47,11 +47,12 @@ void TicketServer::BindMainSocket()
 
 void TicketServer::ListenMainSocket()
 {	
-	if (listen(mainSocket, 3) < 0)
+	//to tez sie przyda do serwera uslugowego
+	/*if (listen(mainSocket, 3) < 0)
 	{
 		std::cerr << "Listen Error\n";
 		exit(EXIT_FAILURE);
-	}
+	}*/
 	
 	addrlen = sizeof(address);
 	std::cout << "Listening on port " << PORT << '\n';
@@ -63,7 +64,12 @@ void TicketServer::Run()
 
 	while(true)
 	{
-		FD_ZERO(&readfds);
+		GetBroadcastMessage();
+		
+
+
+//to nizej przyda sie do serwerow uslugowych tcp
+		/*FD_ZERO(&readfds);
 		FD_SET(mainSocket, &readfds);
 		
 		max_sd = mainSocket;	
@@ -111,12 +117,13 @@ void TicketServer::Run()
 					else
 					{	
 						buffer[bytesRead] = '\0';
-						std::cout << "Message from Client nr " <<  i  << "\n\t" << buffer;
+						std::cout << "Message from Client nr " <<  i  << "\n\t" << buffer <<"\n";
 
 						Ticket ticket;
-						const char* buff = ticket.ToCharArray();
+						const char* buff = ticket.ToString().c_str();
 
-						if( send(sd , buff , strlen(buff) , 0 ) != strlen(buff))
+						//if( send(sd , buff , strlen(buff) , 0 ) != strlen(buff))
+						if(write(sd, buff, sizeof buff) == -1)
 							std::cerr << "Error while sending message to client\n";
 						else
 							std::cout << "Message to client send successfully\n";
@@ -124,7 +131,7 @@ void TicketServer::Run()
 				}
 			}
 		
-		}
+		}*/
 	}
 
 
@@ -141,7 +148,7 @@ void TicketServer::AcceptNewConnection()
 	}
 	std::cout << "New Connection, socket fd is " << newSocket << "\n\tIP: " << inet_ntoa(address.sin_addr) << "\n\tPort: " << ntohs(address.sin_port) << "\n";
 	
-	SendMessage(newSocket, message.c_str());
+	//SendMessage(newSocket, message.c_str());
 	SetNewSocket(newSocket);
 }
 void TicketServer::SendMessage(int socket, const char * message) const
@@ -161,4 +168,49 @@ void TicketServer::SetNewSocket(int socket)
 			break;
 		}
 	}
+}
+
+void TicketServer::GetBroadcastMessage()
+{
+	recvfrom(mainSocket, buffer, 1024, 0, (struct sockaddr *) &address, (socklen_t*)&addrlen);
+	std::cout << "Got message from address: "<<buffer<<"\n";
+	std::string data = buffer;
+
+	if(AuthorizeClient(data))
+		AnswerOnBroadcastMessage(true);
+	else
+		AnswerOnBroadcastMessage(false);
+}
+
+bool TicketServer::AuthorizeClient(std::string data)
+{
+	//tutaj bedzie autoryzacja klienta na podstawie jego danych i ewentualne wyslanie mu biletu
+
+	return true;
+}
+
+void TicketServer::AnswerOnBroadcastMessage(bool isConfirmed)
+{
+	address.sin_addr.s_addr = inet_addr(buffer);
+
+	if(isConfirmed)
+	{
+		std::string message = "1"+SERVICE_ADDRESS_1;
+		unsigned int lenAddr = message.length()+1;
+		if(sendto(mainSocket, message.c_str(), lenAddr, 0, (struct sockaddr *) &address, sizeof(address)) != lenAddr)
+		{
+			std::cerr << "Error";
+		}	
+	}
+	else
+	{
+		std::string message = "0";
+		unsigned int lenAddr = message.length()+1;
+		if(sendto(mainSocket, message.c_str(), lenAddr, 0, (struct sockaddr *) &address, sizeof(address)) != lenAddr)
+		{
+			std::cerr << "Error";
+		}	
+	}
+
+	address.sin_addr.s_addr = INADDR_ANY;
 }

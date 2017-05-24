@@ -1,12 +1,11 @@
 #include "ticket.h"
-#include <string>
 
 Ticket::Ticket()
 {
 
 }
-const char* Ticket::ToCharArray()
+std::string Ticket::ToString()
 {
 	std::string ticket= "TICKET\0";
-	return ticket.c_str();
+	return ticket;
 }

@@ -12,7 +12,7 @@
 #include <netinet/in.h>
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 
-
+#include <string>
 #include "../Common/ticket.h"
 
 class Client
@@ -20,17 +20,26 @@ class Client
 public:
 	Client();
 	void Run();
-	void SendRequestForTicket();
+	bool SendRequestForTicket();
+	bool GetServiceAddress();
+	void RunService(int);
 private:
-	const int PORT;
+	const int BROADCAST_PORT;
+	const std::string BROADCAST_ADDRESS;
+	std::string ServiceAddress;
+	int broadcastPermission;
 	int mainSocket;
 	int bytesRead;
 	struct sockaddr_in address;
 	char buffer[1024];
 	Ticket ticket;
 
-	void ConnectToServer();
+	
 	void ReadInitMessage();
+	std::string PrepareData();
+	bool ConnectToTicketServer();
+	bool InitBroadcastSocket();
+	bool TranslateMessageFromTicketServer(std::string);
 };
 
 #endif

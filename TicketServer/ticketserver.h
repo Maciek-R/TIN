@@ -20,7 +20,7 @@ class TicketServer
 {
 private:
 	const int PORT;
-
+	const std::string SERVICE_ADDRESS_1;
 	bool opt;
 	int addrlen;
 	int sd, max_sd;
@@ -41,6 +41,9 @@ private:
 	void AcceptNewConnection();
 	void SendMessage(int socket, const char* message) const;
 	void SetNewSocket(int socket);
+	void GetBroadcastMessage();
+	void AnswerOnBroadcastMessage(bool);
+	bool AuthorizeClient(std::string);
 public:
 	TicketServer();
 	void Run();
