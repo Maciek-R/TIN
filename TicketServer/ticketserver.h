@@ -13,6 +13,7 @@
 #include <sys/time.h>
 
 #include "../Common/ticket.h"
+#include <sstream>
 #include <string>
 #include <array>
 
@@ -21,17 +22,19 @@ class TicketServer
 private:
 	const int PORT;
 	const std::string SERVICE_ADDRESS_1;
+	const std::string TICKET_SERVER_ADDRESS;
+	std::string ClientAddress;
 	bool opt;
 	int addrlen;
 	int sd, max_sd;
-	std::string message;
 	int mainSocket;
 	std::array<int, 10> clientSockets;
 
 	struct sockaddr_in address;
-	char buffer[1024];	
+	unsigned char buffer[1024];	
 	fd_set readfds;
 
+	std::string ToString(unsigned char*, int from, int to);
 
 	void CreateMainSocket();
 	void InitClients();
@@ -42,7 +45,8 @@ private:
 	void SendMessage(int socket, const char* message) const;
 	void SetNewSocket(int socket);
 	void GetBroadcastMessage();
-	void AnswerOnBroadcastMessage(bool);
+	void AnswerOnBroadcastMessage();
+	void AnswerOnRequestForTicket(bool);
 	bool AuthorizeClient(std::string);
 public:
 	TicketServer();

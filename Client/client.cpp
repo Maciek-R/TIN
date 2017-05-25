@@ -2,18 +2,26 @@
 #include <iostream>
 
 Client::Client()
-	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.1"}, mainSocket{-1}, bytesRead{-1}, ticket{}
+	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.1"}, MY_ADDRESS{"127.0.0.1"}, mainSocket{-1}, bytesRead{-1}, ticket{}
 {
-	
+		
 }
 
-bool Client::GetServiceAddress()
+bool Client::GetTicketServerAddress()
 {
 	if(!InitBroadcastSocket())
 		return false;
 
-	if(!ConnectToTicketServer())
+	if(!SendBroadcastMessage())
 		return false;
+
+	if(!ReceiveTicketServerAddress())
+		return false;
+
+	
+
+	//if(!ConnectToTicketServer())
+	//	return false;
 
 
 //to sie przyda do polaczenia z serwerem uslugowym
@@ -25,6 +33,19 @@ bool Client::GetServiceAddress()
 
 	return true;
 	//ReadInitMessage();
+}
+bool Client::GetTicket()
+{
+	if(!InitSocketWithTicketServer())
+		return false;
+
+	if(!SendRequestForTicket())
+		return false;
+	
+	if(!ReceiveTicket())
+		return false;
+
+	return true;
 }
 bool Client::InitBroadcastSocket()
 {
@@ -46,23 +67,111 @@ bool Client::InitBroadcastSocket()
 
 	return true;
 }
-bool Client::ConnectToTicketServer()
+bool Client::SendBroadcastMessage()
 {
-	unsigned int lenAddr = strlen(BROADCAST_ADDRESS.c_str());
-	if(sendto(mainSocket, BROADCAST_ADDRESS.c_str(), lenAddr, 0, (struct sockaddr *) &address, sizeof(address)) != lenAddr)
+	//std::string message = "1" + MY_ADDRESS;
+	//unsigned int lenAddr = message.length()+1;
+	unsigned char message[5] {1, 127, 0, 0, 1};
+	if(sendto(mainSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
 	{
 		std::cerr << "Error while sending broadcast message";
 		return false;
 	}
-
+	/*if(sendto(mainSocket, message.c_str(), lenAddr, 0, (struct sockaddr *) &address, sizeof(address)) != lenAddr)
+	{
+		std::cerr << "Error while sending broadcast message";
+		return false;
+	}*/
+	return true;
+}
+bool Client::ReceiveTicketServerAddress()
+{
 	int addrlen = sizeof(address);
 	if(recvfrom(mainSocket, buffer, 1024, 0, (struct sockaddr *) &address, (socklen_t*)&addrlen) == -1)
 	{
 		std::cerr << "Error while receiving message from TicketServer";
 		return false;
 	}
-	std::string data = buffer;
-	return TranslateMessageFromTicketServer(data);
+	
+	TicketServerAddress = ToString(buffer, 0, 4);
+	std::cout << "TicketServer address is: "<<TicketServerAddress <<"\n";
+	close(mainSocket);
+	return true;
+	//return TranslateMessageFromTicketServer(data);
+}
+bool Client::InitSocketWithTicketServer()
+{
+	if( (mainSocket = socket(AF_INET , SOCK_DGRAM , 0)) == -1) 
+	{
+		std::cerr << "Creating socket error\n";
+		return false;
+	}
+	
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = inet_addr(TicketServerAddress.c_str());
+	address.sin_port = htons( BROADCAST_PORT );
+
+	return true;
+}
+bool Client::SendRequestForTicket()
+{
+	unsigned char message[5] {2, 127, 0, 0, 1};	
+	if(sendto(mainSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
+	{
+		std::cerr << "Error while sending request for ticket\n";
+		return false;
+	}
+
+	/*std::string message = "2" + MY_ADDRESS;
+	unsigned int lenAddr = message.length()+1;
+	if(sendto(mainSocket, message.c_str(), lenAddr, 0, (struct sockaddr *) &address, sizeof(address)) != lenAddr)
+	{
+		std::cerr << "Error while sending request for ticket\n";
+		return false;
+	}*/
+
+	return true;
+}
+
+bool Client::ReceiveTicket()
+{
+	int addrlen = sizeof(address);
+	int bytesRead;
+	if((bytesRead = recvfrom(mainSocket, buffer, 1024, 0, (struct sockaddr *) &address, (socklen_t*)&addrlen)) == -1)
+	{
+		std::cerr << "Error while receiving message from TicketServer";
+		return false;
+	}
+
+	if(buffer[0] == 1)
+	{
+		ServiceAddress = ToString(buffer, 1, 5);
+		std::cout << "Got Message from TicketServer. Service Address is: "<<ServiceAddress<<"\n";
+		return true;
+	}
+	else if (buffer[0]==0)
+	{
+		std::cout << "Got Message from TicketServer. You are not on VIP list!\n";
+		return false;
+	}
+	else{
+		std::cout << "Unknown message\n";
+		return false;
+	}
+close(mainSocket);
+	
+/*
+	std::string data;
+	if(bytesRead == 1)
+		data = ToString(buffer, 0, 1);
+	
+	else if(bytesRead == 4)
+		data = ToString(buffer, 0, 4);
+	else
+		std::cout << "Error\n";
+
+	close(mainSocket);
+	return TranslateMessageFromTicketServer(data);*/
 }
 bool Client::TranslateMessageFromTicketServer(std::string data)
 {
@@ -99,15 +208,15 @@ void Client::ReadInitMessage()
 }
 void Client::Run()
 {	
-	while(fgets(buffer, 51, stdin) != nullptr)
+/*	while(fgets(buffer, 51, stdin) != nullptr)
 	{	
 		if(write(mainSocket, buffer, sizeof buffer) == -1)
 			std::cerr << "error while sending message\n";
 	}	
 
-	close(mainSocket);
+	close(mainSocket);*/
 }
-bool Client::SendRequestForTicket()
+/*bool Client::SendRequestForTicket()
 {
 	//TODO
 	//create ticket object
@@ -140,7 +249,7 @@ bool Client::SendRequestForTicket()
 	}
 	close(mainSocket);
 	return true;
-}
+}*/
 void Client::RunService(int numService)
 {
 	std::cout << "Service nr " << numService <<std::endl;
@@ -157,4 +266,17 @@ std::string Client::PrepareData()
 						//nazwa servera ?
 						//nazwa uslugi ?
 	return data;
+}
+std::string Client::ToString(unsigned char * buff, int from, int to)
+{
+	std::stringstream ss;
+
+	for(size_t i=from; i<to-1; ++i)
+	{
+		ss << (int) buff[i];
+		ss << ".";
+	}
+	ss << (int) buff[to-1];
+	
+	return ss.str();
 }

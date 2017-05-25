@@ -13,6 +13,7 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 
 #include <string>
+#include <sstream>
 #include "../Common/ticket.h"
 
 class Client
@@ -20,26 +21,39 @@ class Client
 public:
 	Client();
 	void Run();
-	bool SendRequestForTicket();
 	bool GetServiceAddress();
 	void RunService(int);
+
+	bool GetTicketServerAddress();
+	bool GetTicket();
 private:
+	const std::string MY_ADDRESS;
 	const int BROADCAST_PORT;
 	const std::string BROADCAST_ADDRESS;
 	std::string ServiceAddress;
+	std::string TicketServerAddress;
 	int broadcastPermission;
 	int mainSocket;
 	int bytesRead;
 	struct sockaddr_in address;
-	char buffer[1024];
+	unsigned char buffer[1024];
 	Ticket ticket;
 
 	
 	void ReadInitMessage();
 	std::string PrepareData();
-	bool ConnectToTicketServer();
+
 	bool InitBroadcastSocket();
+	bool SendBroadcastMessage();
+	bool ReceiveTicketServerAddress();
+
+	bool InitSocketWithTicketServer();
+	bool SendRequestForTicket();
+	bool ReceiveTicket();
+
 	bool TranslateMessageFromTicketServer(std::string);
+
+	std::string ToString(unsigned char*, int, int);
 };
 
 #endif

@@ -3,7 +3,7 @@
 #include <iostream>
 
 TicketServer::TicketServer()
-	: PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, opt{true}, message{"SERVER\0"}
+	: PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{"127.0.0.1"}, opt{true}
 {
 	InitClients();
 	CreateMainSocket();
@@ -172,14 +172,56 @@ void TicketServer::SetNewSocket(int socket)
 
 void TicketServer::GetBroadcastMessage()
 {
-	recvfrom(mainSocket, buffer, 1024, 0, (struct sockaddr *) &address, (socklen_t*)&addrlen);
-	std::cout << "Got message from address: "<<buffer<<"\n";
-	std::string data = buffer;
+	int bytesRead = recvfrom(mainSocket, buffer, 1024, 0, (struct sockaddr *) &address, (socklen_t*)&addrlen);
 
-	if(AuthorizeClient(data))
-		AnswerOnBroadcastMessage(true);
-	else
-		AnswerOnBroadcastMessage(false);
+	if(buffer[0] == 1 )
+	{
+		ClientAddress = ToString(buffer, 1, 5);
+		
+		std::cout << "Receive Broadcast Message from Client. Client Address is: "<<ClientAddress<<"\n";
+		AnswerOnBroadcastMessage();
+	}
+	else if(buffer[0] == 2)
+	{
+		ClientAddress = ToString(buffer, 1, 5);
+
+		std::cout << "Receive Request for Ticket from Client. Client Address is: "<<ClientAddress<<"\n";
+
+		if(AuthorizeClient(ClientAddress))
+			AnswerOnRequestForTicket(true);
+		else
+			AnswerOnRequestForTicket(false);
+	}
+	else{
+		std::cout << "Unknown Message\n";
+		return;
+	}
+	/*std::string data = buffer;
+	if(data[0] == '1')
+	{
+		ClientAddress = data.substr(1, data.length());
+		
+		AnswerOnBroadcastMessage();
+	}
+	else if(data[0] == '2')
+	{
+		ClientAddress = data.substr(1, data.length());
+		std::cout << "Receive Request for Ticket from Client. Client Address is: "<<ClientAddress<<"\n";
+
+		if(AuthorizeClient(data.substr(1, data.length())))
+			AnswerOnRequestForTicket(true);
+		else
+			AnswerOnRequestForTicket(false);
+	}
+	else{
+		std::cout << "Unknown Message\n";
+		return;
+	}*/
+
+	//std::cout << "Got message from address: "<<buffer<<"\n";
+	//std::string data = buffer;
+
+	
 }
 
 bool TicketServer::AuthorizeClient(std::string data)
@@ -189,28 +231,58 @@ bool TicketServer::AuthorizeClient(std::string data)
 	return true;
 }
 
-void TicketServer::AnswerOnBroadcastMessage(bool isConfirmed)
+void TicketServer::AnswerOnBroadcastMessage()
 {
-	address.sin_addr.s_addr = inet_addr(buffer);
+	address.sin_addr.s_addr = inet_addr(ClientAddress.c_str());
+
+	//std::string message = TICKET_SERVER_ADDRESS;
+
+	//unsigned int lenAddr = message.length()+1;
+	unsigned char message[4] {127, 0, 0, 1};		//ticketServerAddress
+	if(sendto(mainSocket, message, 4, 0, (struct sockaddr *) &address, sizeof(address)) != 4)
+	{
+		std::cerr << "Sending TicketServer Address Error";
+	}	
+
+	address.sin_addr.s_addr = INADDR_ANY;
+}
+void TicketServer::AnswerOnRequestForTicket(bool isConfirmed)
+{
+	address.sin_addr.s_addr = inet_addr(ClientAddress.c_str());
 
 	if(isConfirmed)
 	{
-		std::string message = "1"+SERVICE_ADDRESS_1;
-		unsigned int lenAddr = message.length()+1;
-		if(sendto(mainSocket, message.c_str(), lenAddr, 0, (struct sockaddr *) &address, sizeof(address)) != lenAddr)
+		//std::string message = "1"+SERVICE_ADDRESS_1;
+		unsigned char message[5] {1, 127, 0, 0, 1};	//service_address
+		//unsigned int lenAddr = message.length()+1;
+		if(sendto(mainSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
 		{
-			std::cerr << "Error";
+			std::cerr << "Sending ServiceAddress Error";
 		}	
 	}
 	else
 	{
-		std::string message = "0";
-		unsigned int lenAddr = message.length()+1;
-		if(sendto(mainSocket, message.c_str(), lenAddr, 0, (struct sockaddr *) &address, sizeof(address)) != lenAddr)
+		//std::string message = "0";
+		//unsigned int lenAddr = message.length()+1;
+		unsigned char message[1] {0};
+		if(sendto(mainSocket, message, 1, 0, (struct sockaddr *) &address, sizeof(address)) != 1)
 		{
 			std::cerr << "Error";
 		}	
 	}
 
 	address.sin_addr.s_addr = INADDR_ANY;
+}
+std::string TicketServer::ToString(unsigned char * buff, int from, int to)
+{
+	std::stringstream ss;
+
+	for(size_t i=from; i<to-1; ++i)
+	{
+		ss << (int) buff[i];
+		ss << ".";
+	}
+	ss << (int) buff[to-1];
+	
+	return ss.str();
 }

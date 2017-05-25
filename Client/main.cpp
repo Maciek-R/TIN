@@ -1,9 +1,8 @@
 #include "client.h"
- 
+ #include <iostream>
 
 int main(int argc , char** argv)
 {
-
 	Client client; 
 	//tu trzeba bedzie dorobic jakies menu wyboru opcji uslugi, poboru biletu, itp. itd.
 
@@ -12,8 +11,12 @@ int main(int argc , char** argv)
 	//
 	//client.GetTicketServerAddress() // komunikat rozgloszeniowy
 	//
-	if(client.GetServiceAddress())
+	if(client.GetTicketServerAddress())
 	{
+		if(client.GetTicket())
+		{
+
+		}
 		/*if(client.SendRequestForTicket())
 		{
 			client.RunService(1);// 1 2 3 4
