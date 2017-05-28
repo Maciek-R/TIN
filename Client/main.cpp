@@ -15,12 +15,8 @@ int main(int argc , char** argv)
 	{
 		if(client.GetTicket())
 		{
-
+			client.RunService(1);
 		}
-		/*if(client.SendRequestForTicket())
-		{
-			client.RunService(1);// 1 2 3 4
-		}*/
 	}
 
 

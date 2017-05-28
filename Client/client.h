@@ -22,7 +22,7 @@ public:
 	Client();
 	void Run();
 	bool GetServiceAddress();
-	void RunService(int);
+	bool RunService(int);
 
 	bool GetTicketServerAddress();
 	bool GetTicket();
@@ -33,7 +33,7 @@ private:
 	std::string ServiceAddress;
 	int ServicePort;
 	std::string TicketServerAddress;
-	
+
 	int broadcastPermission;
 	int mainSocket;
 	int bytesRead;
@@ -45,7 +45,6 @@ private:
 
 	
 	void ReadInitMessage();
-	std::string PrepareData();
 
 	bool InitBroadcastSocket();
 	bool SendBroadcastMessage();
@@ -55,7 +54,7 @@ private:
 	bool SendRequestForTicket();
 	bool ReceiveTicket();
 
-	bool TranslateMessageFromTicketServer(std::string);
+	bool sendTcpEcho();
 
 	void loadClientInfo();
 

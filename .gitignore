@@ -1,5 +1,7 @@
 Server/server
 Client/client
+ServiceServer/serviceserver
+TicketServer/ticketserver
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles/

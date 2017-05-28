@@ -97,7 +97,6 @@ bool Client::ReceiveTicketServerAddress()
 	std::cout << "TicketServer address is: "<<TicketServerAddress <<"\n";
 	close(mainSocket);
 	return true;
-	//return TranslateMessageFromTicketServer(data);
 }
 bool Client::InitSocketWithTicketServer()
 {
@@ -175,26 +174,7 @@ close(mainSocket);
 	close(mainSocket);
 	return TranslateMessageFromTicketServer(data);*/
 }
-bool Client::TranslateMessageFromTicketServer(std::string data)
-{
-	if(data[0] == '1')
-	{
-		ServiceAddress = data.substr(1, data.length());
-		std::cout << "Got Message from TicketServer. Service Address is: "<<ServiceAddress<<"\n";
-		return true;
-	}
-	else if(data[0] == '0')
-	{
-		std::cout << "Got Message from TicketServer. You are not on VIP list!\n";
-		return false;
-	}
-	else{
-		std::cout << "Got Message from TicketServer. Unknown message!\n";
-		return false;
-	}
-	
-	
-}
+
 void Client::ReadInitMessage()
 {
 	if((bytesRead = read(mainSocket, buffer, 1024))==0)
@@ -252,22 +232,58 @@ void Client::Run()
 	close(mainSocket);
 	return true;
 }*/
-void Client::RunService(int numService)
+bool Client::RunService(int numService)
 {
-	std::cout << "Service nr " << numService <<std::endl;
-	//connect to Service
-	//and run
-}
-std::string Client::PrepareData()
-{
-	std::string data;
+	switch(numService)
+	{
+		case 1: sendTcpEcho(); break;
+		case 2: break;
+		case 3: break;
+		case 4: break;
+	}
 	
-	//
-	data+="Maciek";		//login
-	data+="qwerty";		//haslo, na razie jawnie
-						//nazwa servera ?
-						//nazwa uslugi ?
-	return data;
+
+}
+bool Client::sendTcpEcho()
+{
+	if( (mainSocket = socket(AF_INET , SOCK_STREAM , 0)) == -1) 
+	{
+		std::cerr << "Creating socket error\n";
+		return false;
+	}
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = inet_addr(ServiceAddress.c_str());
+	address.sin_port = htons( ServicePort );
+
+	if(connect(mainSocket, (struct sockaddr *)&address, sizeof address)==-1)
+	{
+		std::cerr<<"Connecting to ServiceServer failed\n";
+		return false;
+	}
+
+	char message[1024];
+	std::cout <<"Type Message: ";
+	if(fgets(message, 1024, stdin) != NULL)
+	{	
+		message[strlen(message)-1] = '\0';
+		if(write(mainSocket, message, strlen(message)) == -1)
+		{
+			std::cerr << "Sending Echo Message to ServiceServer Error\n";
+			return false;
+		}
+	}
+
+	int bytesRead;
+	if((bytesRead= read(mainSocket, message, 1024))==0)
+	{
+		std::cerr << "Receiving Echo Message from ServiceServer Error\n";
+		return false;		
+	}
+	else{
+		message[bytesRead] = '\0';
+		printf("Message from ServiceServer: %s\n", message);
+	}
+	return true;
 }
 std::string Client::ToString(unsigned char * buff, int from, int to)
 {
