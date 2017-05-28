@@ -3,7 +3,7 @@
 #include <iostream>
 
 TicketServer::TicketServer()
-	: PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{"127.0.0.1"}, opt{true}
+	: PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{"127.0.0.1"}, opt{true}, serviceInfo{nullptr}
 {
 	InitClients();
 	CreateMainSocket();
@@ -185,7 +185,13 @@ void TicketServer::GetBroadcastMessage()
 	{
 		ClientAddress = ToString(buffer, 1, 5);
 
-		std::cout << "Receive Request for Ticket from Client. Client Address is: "<<ClientAddress<<"\n";
+		std::string login = ToString(buffer, 5, 35);
+		std::string password = ToString(buffer, 35, 55);
+		std::string nameServer = ToString(buffer, 55, 56);
+		std::string numerService = ToString(buffer, 56, 57); 
+
+		std::cout << "Receive Request for Ticket from Client. Client Address is: "<<ClientAddress<<" Got " << bytesRead <<" bytes\n";
+			std::cout <<"login: "<<login<<"\npassword: "<<password<<"\nnameServer: "<<nameServer<<"\nnumerService: "<<numerService<<"\n";
 
 		if(AuthorizeClient(ClientAddress))
 			AnswerOnRequestForTicket(true);
@@ -249,23 +255,24 @@ void TicketServer::AnswerOnBroadcastMessage()
 void TicketServer::AnswerOnRequestForTicket(bool isConfirmed)
 {
 	address.sin_addr.s_addr = inet_addr(ClientAddress.c_str());
-
+	loadServiceInfo(isConfirmed);
+	
 	if(isConfirmed)
 	{
-		//std::string message = "1"+SERVICE_ADDRESS_1;
-		unsigned char message[5] {1, 127, 0, 0, 1};	//service_address
+		//unsigned char message[5] {1, 127, 0, 0, 1};	//service_address
 		//unsigned int lenAddr = message.length()+1;
-		if(sendto(mainSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
+
+
+		if(sendto(mainSocket, serviceInfo, 9, 0, (struct sockaddr *) &address, sizeof(address)) != 9)
 		{
 			std::cerr << "Sending ServiceAddress Error";
 		}	
 	}
 	else
 	{
-		//std::string message = "0";
 		//unsigned int lenAddr = message.length()+1;
-		unsigned char message[1] {0};
-		if(sendto(mainSocket, message, 1, 0, (struct sockaddr *) &address, sizeof(address)) != 1)
+		//unsigned char message[1] {0};
+		if(sendto(mainSocket, serviceInfo, 1, 0, (struct sockaddr *) &address, sizeof(address)) != 1)
 		{
 			std::cerr << "Error";
 		}	
@@ -285,4 +292,34 @@ std::string TicketServer::ToString(unsigned char * buff, int from, int to)
 	ss << (int) buff[to-1];
 	
 	return ss.str();
+}
+void TicketServer::loadServiceInfo(bool isConfirmed)
+{
+	unsigned char * mess;
+
+	if(isConfirmed)
+	{
+		mess = new unsigned char[9];//potwierdzenie + adres + port
+		mess[0] = 1;
+
+		mess[1] = 127;// Service Address
+		mess[2] = 0;
+		mess[3] = 0;
+		mess[4] = 1;
+
+		mess[5] = 8;	//port
+		mess[6] = 8;
+		mess[7] = 8;
+		mess[8] = 9;
+	}
+	else
+	{
+		mess = new unsigned char[1];//odmowa
+		mess[0] = 0;
+	}
+
+	if(serviceInfo!=nullptr)
+		delete serviceInfo;
+
+	serviceInfo = mess;
 }

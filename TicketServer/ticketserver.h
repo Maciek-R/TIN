@@ -34,6 +34,8 @@ private:
 	unsigned char buffer[1024];	
 	fd_set readfds;
 
+	unsigned char * serviceInfo;
+
 	std::string ToString(unsigned char*, int from, int to);
 
 	void CreateMainSocket();
@@ -48,6 +50,7 @@ private:
 	void AnswerOnBroadcastMessage();
 	void AnswerOnRequestForTicket(bool);
 	bool AuthorizeClient(std::string);
+	void loadServiceInfo(bool);
 public:
 	TicketServer();
 	void Run();

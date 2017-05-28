@@ -4,7 +4,7 @@
 Client::Client()
 	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.1"}, MY_ADDRESS{"127.0.0.1"}, mainSocket{-1}, bytesRead{-1}, ticket{}
 {
-		
+		loadClientInfo();
 }
 
 bool Client::GetTicketServerAddress()
@@ -115,8 +115,8 @@ bool Client::InitSocketWithTicketServer()
 }
 bool Client::SendRequestForTicket()
 {
-	unsigned char message[5] {2, 127, 0, 0, 1};	
-	if(sendto(mainSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
+	//unsigned char message[5] {2, 127, 0, 0, 1, };	
+	if(sendto(mainSocket, clientInfo, 57, 0, (struct sockaddr *) &address, sizeof(address)) != 57)
 	{
 		std::cerr << "Error while sending request for ticket\n";
 		return false;
@@ -146,7 +146,9 @@ bool Client::ReceiveTicket()
 	if(buffer[0] == 1)
 	{
 		ServiceAddress = ToString(buffer, 1, 5);
-		std::cout << "Got Message from TicketServer. Service Address is: "<<ServiceAddress<<"\n";
+		ServicePort = ToInt(buffer, 5, 9);
+
+		std::cout << "Got Message from TicketServer. Service Address is: "<<ServiceAddress<<" Service Port: "<<ServicePort<<"\n";
 		return true;
 	}
 	else if (buffer[0]==0)
@@ -279,4 +281,45 @@ std::string Client::ToString(unsigned char * buff, int from, int to)
 	ss << (int) buff[to-1];
 	
 	return ss.str();
+}
+int Client::ToInt(unsigned char * buff, int from, int to)
+{
+	std::stringstream ss;
+
+	for(size_t i=from; i<to; ++i)
+		ss << (int) buff[i];
+	
+	int a;
+	ss >> a;
+
+	return a;
+}
+void Client::loadClientInfo()
+{
+	unsigned char * mess = new unsigned char[57];	// na razie na zywca (57, bo 4+30+20+1+1 -> dokumentacja)
+	mess[0] = 2;	//zadanie o bilet
+
+	mess[1] = 127;//adres
+	mess[2] = 0;
+	mess[3] = 0;
+	mess[4] = 1;
+
+	mess[5] = 'm';	//login
+	mess[6] = 'a';
+	mess[7] = 'c';
+	mess[8] = 'i';
+	mess[9] = 'e';
+	mess[10] = 'k';	
+	mess[11] = 0;
+
+	mess[35] = 'a';				//skrot hasla
+	mess[36] = 'b';
+	mess[37] = 'c';
+	mess[38] = 0;
+
+								//na razie wstawiam tu 1 1, ale to sie bedzie zmieniac
+	mess[55] = 1;				//nazwa serwera
+	mess[56] = 1;				//nazwa uslugi
+
+	clientInfo = mess;
 }

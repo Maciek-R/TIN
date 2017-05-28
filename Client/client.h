@@ -31,13 +31,17 @@ private:
 	const int BROADCAST_PORT;
 	const std::string BROADCAST_ADDRESS;
 	std::string ServiceAddress;
+	int ServicePort;
 	std::string TicketServerAddress;
+	
 	int broadcastPermission;
 	int mainSocket;
 	int bytesRead;
 	struct sockaddr_in address;
 	unsigned char buffer[1024];
 	Ticket ticket;
+
+	unsigned char * clientInfo;
 
 	
 	void ReadInitMessage();
@@ -53,7 +57,10 @@ private:
 
 	bool TranslateMessageFromTicketServer(std::string);
 
+	void loadClientInfo();
+
 	std::string ToString(unsigned char*, int, int);
+	int ToInt(unsigned char*, int, int);
 };
 
 #endif
