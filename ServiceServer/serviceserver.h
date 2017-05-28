@@ -21,7 +21,6 @@ class ServiceServer
 {
 private:
 	const int PORT;
-	const std::string SERVICE_ADDRESS_1;
 	std::string ClientAddress;
 	bool opt;
 	int addrlen;

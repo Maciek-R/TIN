@@ -14,7 +14,9 @@
 
 #include <string>
 #include <sstream>
+#include <istream>
 #include "../Common/ticket.h"
+#include "../Common/utils.h"
 
 class Client
 {
@@ -27,7 +29,7 @@ public:
 	bool GetTicketServerAddress();
 	bool GetTicket();
 private:
-	const std::string MY_ADDRESS;
+	const std::string CLIENT_ADDRESS;
 	const int BROADCAST_PORT;
 	const std::string BROADCAST_ADDRESS;
 	std::string ServiceAddress;
@@ -43,7 +45,6 @@ private:
 
 	unsigned char * clientInfo;
 
-	
 	void ReadInitMessage();
 
 	bool InitBroadcastSocket();
@@ -57,9 +58,6 @@ private:
 	bool sendTcpEcho();
 
 	void loadClientInfo();
-
-	std::string ToString(unsigned char*, int, int);
-	int ToInt(unsigned char*, int, int);
 };
 
 #endif

@@ -2,7 +2,7 @@
 #include <iostream>
 
 Client::Client()
-	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.1"}, MY_ADDRESS{"127.0.0.1"}, mainSocket{-1}, bytesRead{-1}, ticket{}
+	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.1"}, CLIENT_ADDRESS{"127.0.0.1"}, mainSocket{-1}, bytesRead{-1}, ticket{}
 {
 		loadClientInfo();
 }
@@ -18,21 +18,7 @@ bool Client::GetTicketServerAddress()
 	if(!ReceiveTicketServerAddress())
 		return false;
 
-	
-
-	//if(!ConnectToTicketServer())
-	//	return false;
-
-
-//to sie przyda do polaczenia z serwerem uslugowym
-	/*if(connect(mainSocket, (struct sockaddr *)&address, sizeof address) == -1)
-	{
-		std::cerr << "Failed to connect\n";
-		return false;
-	}*/
-
 	return true;
-	//ReadInitMessage();
 }
 bool Client::GetTicket()
 {
@@ -69,9 +55,8 @@ bool Client::InitBroadcastSocket()
 }
 bool Client::SendBroadcastMessage()
 {
-	//std::string message = "1" + MY_ADDRESS;
-	//unsigned int lenAddr = message.length()+1;
-	unsigned char message[5] {1, 127, 0, 0, 1};
+	unsigned char message[5] {1};
+	Utils::loadAddress(message, CLIENT_ADDRESS, 1);
 	if(sendto(mainSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
 	{
 		std::cerr << "Error while sending broadcast message";
@@ -93,7 +78,7 @@ bool Client::ReceiveTicketServerAddress()
 		return false;
 	}
 	
-	TicketServerAddress = ToString(buffer, 0, 4);
+	TicketServerAddress = Utils::ToString(buffer, 0, 4);
 	std::cout << "TicketServer address is: "<<TicketServerAddress <<"\n";
 	close(mainSocket);
 	return true;
@@ -114,7 +99,6 @@ bool Client::InitSocketWithTicketServer()
 }
 bool Client::SendRequestForTicket()
 {
-	//unsigned char message[5] {2, 127, 0, 0, 1, };	
 	if(sendto(mainSocket, clientInfo, 57, 0, (struct sockaddr *) &address, sizeof(address)) != 57)
 	{
 		std::cerr << "Error while sending request for ticket\n";
@@ -136,7 +120,7 @@ bool Client::ReceiveTicket()
 {
 	int addrlen = sizeof(address);
 	int bytesRead;
-	if((bytesRead = recvfrom(mainSocket, buffer, 1024, 0, (struct sockaddr *) &address, (socklen_t*)&addrlen)) == -1)
+	if((bytesRead = recvfrom(mainSocket, buffer, 1024, 0, (struct sockaddr *) &address, (socklen_t*)&addrlen)) < 0)
 	{
 		std::cerr << "Error while receiving message from TicketServer";
 		return false;
@@ -144,8 +128,8 @@ bool Client::ReceiveTicket()
 
 	if(buffer[0] == 1)
 	{
-		ServiceAddress = ToString(buffer, 1, 5);
-		ServicePort = ToInt(buffer, 5, 9);
+		ServiceAddress = Utils::ToString(buffer, 1, 5);
+		ServicePort = Utils::ToInt(buffer, 5, 9);
 
 		std::cout << "Got Message from TicketServer. Service Address is: "<<ServiceAddress<<" Service Port: "<<ServicePort<<"\n";
 		return true;
@@ -285,40 +269,12 @@ bool Client::sendTcpEcho()
 	}
 	return true;
 }
-std::string Client::ToString(unsigned char * buff, int from, int to)
-{
-	std::stringstream ss;
-
-	for(size_t i=from; i<to-1; ++i)
-	{
-		ss << (int) buff[i];
-		ss << ".";
-	}
-	ss << (int) buff[to-1];
-	
-	return ss.str();
-}
-int Client::ToInt(unsigned char * buff, int from, int to)
-{
-	std::stringstream ss;
-
-	for(size_t i=from; i<to; ++i)
-		ss << (int) buff[i];
-	
-	int a;
-	ss >> a;
-
-	return a;
-}
 void Client::loadClientInfo()
 {
 	unsigned char * mess = new unsigned char[57];	// na razie na zywca (57, bo 4+30+20+1+1 -> dokumentacja)
 	mess[0] = 2;	//zadanie o bilet
 
-	mess[1] = 127;//adres
-	mess[2] = 0;
-	mess[3] = 0;
-	mess[4] = 1;
+	Utils::loadAddress(mess, CLIENT_ADDRESS, 1);
 
 	mess[5] = 'm';	//login
 	mess[6] = 'a';
@@ -339,3 +295,4 @@ void Client::loadClientInfo()
 
 	clientInfo = mess;
 }
+

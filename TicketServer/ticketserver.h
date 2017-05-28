@@ -13,6 +13,7 @@
 #include <sys/time.h>
 
 #include "../Common/ticket.h"
+#include "../Common/utils.h"
 #include <sstream>
 #include <string>
 #include <array>
@@ -34,8 +35,6 @@ private:
 
 	unsigned char * serviceInfo;
 
-	std::string ToString(unsigned char*, int from, int to);
-
 	void CreateMainSocket();
 	void BindMainSocket();
 
@@ -45,6 +44,7 @@ private:
 	void AnswerOnRequestForTicket(bool);
 	bool AuthorizeClient(std::string);
 	void loadServiceInfo(bool);
+
 public:
 	TicketServer();	
 	void Run();

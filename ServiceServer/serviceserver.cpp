@@ -3,7 +3,7 @@
 #include <iostream>
 
 ServiceServer::ServiceServer()
-	: PORT{8889}, SERVICE_ADDRESS_1{"127.0.0.1"}, opt{true}
+	: PORT{8889}, opt{true}
 {
 	InitClients();
 	CreateMainSocket();
@@ -184,3 +184,4 @@ std::string ServiceServer::ToString(unsigned char * buff, int from, int to)
 	
 	return ss.str();
 }
+

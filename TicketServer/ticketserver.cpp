@@ -64,19 +64,19 @@ void TicketServer::GetBroadcastMessage()
 
 	if(buffer[0] == 1 )
 	{
-		ClientAddress = ToString(buffer, 1, 5);
+		ClientAddress = Utils::ToString(buffer, 1, 5);
 		
 		std::cout << "Receive Broadcast Message from Client. Client Address is: "<<ClientAddress<<"\n";
 		AnswerOnBroadcastMessage();
 	}
 	else if(buffer[0] == 2)
 	{
-		ClientAddress = ToString(buffer, 1, 5);
+		ClientAddress = Utils::ToString(buffer, 1, 5);
 
-		std::string login = ToString(buffer, 5, 35);
-		std::string password = ToString(buffer, 35, 55);
-		std::string nameServer = ToString(buffer, 55, 56);
-		std::string numerService = ToString(buffer, 56, 57); 
+		std::string login = Utils::ToString(buffer, 5, 35);
+		std::string password = Utils::ToString(buffer, 35, 55);
+		std::string nameServer = Utils::ToString(buffer, 55, 56);
+		std::string numerService = Utils::ToString(buffer, 56, 57); 
 
 		std::cout << "Receive Request for Ticket from Client. Client Address is: "<<ClientAddress<<" Got " << bytesRead <<" bytes\n";
 			std::cout <<"login: "<<login<<"\npassword: "<<password<<"\nnameServer: "<<nameServer<<"\nnumerService: "<<numerService<<"\n";
@@ -132,7 +132,9 @@ void TicketServer::AnswerOnBroadcastMessage()
 	//std::string message = TICKET_SERVER_ADDRESS;
 
 	//unsigned int lenAddr = message.length()+1;
-	unsigned char message[4] {127, 0, 0, 1};		//ticketServerAddress
+	unsigned char message[4];
+	Utils::loadAddress(message, TICKET_SERVER_ADDRESS, 0);
+	
 	if(sendto(mainSocket, message, 4, 0, (struct sockaddr *) &address, sizeof(address)) != 4)
 	{
 		std::cerr << "Sending TicketServer Address Error";
@@ -168,19 +170,6 @@ void TicketServer::AnswerOnRequestForTicket(bool isConfirmed)
 
 	address.sin_addr.s_addr = INADDR_ANY;
 }
-std::string TicketServer::ToString(unsigned char * buff, int from, int to)
-{
-	std::stringstream ss;
-
-	for(size_t i=from; i<to-1; ++i)
-	{
-		ss << (int) buff[i];
-		ss << ".";
-	}
-	ss << (int) buff[to-1];
-	
-	return ss.str();
-}
 void TicketServer::loadServiceInfo(bool isConfirmed)
 {
 	unsigned char * mess;
@@ -190,10 +179,7 @@ void TicketServer::loadServiceInfo(bool isConfirmed)
 		mess = new unsigned char[9];//potwierdzenie + adres + port
 		mess[0] = 1;
 
-		mess[1] = 127;// Service Address
-		mess[2] = 0;
-		mess[3] = 0;
-		mess[4] = 1;
+		Utils::loadAddress(mess, SERVICE_ADDRESS_1, 1);
 
 		mess[5] = 8;	//port
 		mess[6] = 8;
