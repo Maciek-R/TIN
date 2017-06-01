@@ -128,6 +128,12 @@ bool Client::ReceiveTicket()
 
 	if(buffer[0] == 1)
 	{
+		ticket = new Ticket();
+		ticket->SetClientAddress(Utils::ToString(buffer, 1, 5));
+		ticket->SetServiceAddress(Utils::ToString(buffer, 5, 9));
+		ticket->SetServicePort(Utils::ToInt(buffer, 9, 13));
+		ticket->SetServiceId(buffer[13]);
+
 		ServiceAddress = Utils::ToString(buffer, 5, 9);
 		ServicePort = Utils::ToInt(buffer, 9, 13);
 
@@ -220,15 +226,68 @@ bool Client::RunService(int numService)
 {
 	switch(numService)
 	{
-		case 1: sendTcpEcho(); break;
-		case 2: break;
+		case 1: SendTcpEcho(); break;
+		case 2: SendTcpTime(); break;
 		case 3: break;
 		case 4: break;
 	}
 	
 
 }
-bool Client::sendTcpEcho()
+bool Client::SendTcpEcho()
+{
+	if( (mainSocket = socket(AF_INET , SOCK_STREAM , 0)) == -1) 
+	{
+		std::cerr << "Creating socket error\n";
+		return false;
+	}
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = inet_addr(ServiceAddress.c_str());
+	address.sin_port = htons( ServicePort );
+
+	if(connect(mainSocket, (struct sockaddr *)&address, sizeof address)==-1)
+	{
+		std::cerr<<"Connecting to ServiceServer failed\n";
+		return false;
+	}
+	char message[1024];
+	char info[512];
+	std::cout <<"Type Message: ";
+	if(fgets(info, 512, stdin) != NULL)
+	{	
+		info[strlen(info)-1] = 0;
+		int size;
+		unsigned char * buff = ticket->GetAsBuffor(size);
+		
+		for(int i=0; i<size; ++i)// trzeba bedzie to poprawic na ladniej
+			message[i] = buff[i];
+		for(int i=size; i<size + strlen(info); ++i)
+			message[i] = info[i-size];
+		
+		message[size + strlen(info)] = '\0';
+
+		std::cout << size + strlen(info)<<std::endl;
+
+		if(write(mainSocket, message, size + strlen(info)+1) == -1)
+		{
+			std::cerr << "Sending Echo Message to ServiceServer Error\n";
+			return false;
+		}
+	}
+
+	int bytesRead;
+	if((bytesRead= read(mainSocket, info, 1024))==0)
+	{
+		std::cerr << "Receiving Echo Message from ServiceServer Error\n";
+		return false;		
+	}
+	else{
+		info[bytesRead] = '\0';
+		printf("Message from ServiceServer: %s\n", info);
+	}
+	return true;
+}
+bool Client::SendTcpTime()
 {
 	if( (mainSocket = socket(AF_INET , SOCK_STREAM , 0)) == -1) 
 	{
