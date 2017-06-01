@@ -81,23 +81,21 @@ void TicketServer::GetBroadcastMessage()
 		std::cout << "Receive Request for Ticket from Client. Client Address is: "<<ClientAddress<<" Got " << bytesRead <<" bytes\n";
 			std::cout <<"login: "<<login<<"\npassword: "<<password<<"\nnameServer: "<<nameServer<<"\nnumerService: "<<numerService<<"\n";
 
-		if(AuthorizeClient(ClientAddress))
-			AnswerOnRequestForTicket(true);
-		else
-			AnswerOnRequestForTicket(false);
+		AnswerOnRequestForTicket(AuthorizeClient(buffer), buffer[56]);
+	
 	}
 	else{
 		std::cout << "Unknown Message\n";
 		return;
 	}
-	
 }
 
-bool TicketServer::AuthorizeClient(std::string data)
+bool TicketServer::AuthorizeClient(unsigned char * data)
 {
-	//tutaj bedzie autoryzacja klienta na podstawie jego danych i ewentualne wyslanie mu biletu
-
-	return true;
+	if (checkClientInDatabase(data))
+		return true;
+	else
+		return false;
 }
 
 void TicketServer::AnswerOnBroadcastMessage()
@@ -117,10 +115,10 @@ void TicketServer::AnswerOnBroadcastMessage()
 
 	address.sin_addr.s_addr = INADDR_ANY;
 }
-void TicketServer::AnswerOnRequestForTicket(bool isConfirmed)
+void TicketServer::AnswerOnRequestForTicket(bool isConfirmed, unsigned char idService)
 {
 	address.sin_addr.s_addr = inet_addr(ClientAddress.c_str());
-	loadServiceInfo(isConfirmed);
+	loadServiceInfo(isConfirmed, idService);
 
 	if(isConfirmed)
 	{
@@ -128,7 +126,7 @@ void TicketServer::AnswerOnRequestForTicket(bool isConfirmed)
 		//unsigned int lenAddr = message.length()+1;
 
 
-		if(sendto(mainSocket, serviceInfo, 9, 0, (struct sockaddr *) &address, sizeof(address)) != 9)
+		if(sendto(mainSocket, serviceInfo, 14, 0, (struct sockaddr *) &address, sizeof(address)) != 14)
 		{
 			std::cerr << "Sending ServiceAddress Error";
 		}	
@@ -145,21 +143,28 @@ void TicketServer::AnswerOnRequestForTicket(bool isConfirmed)
 
 	address.sin_addr.s_addr = INADDR_ANY;
 }
-void TicketServer::loadServiceInfo(bool isConfirmed)
+void TicketServer::loadServiceInfo(bool isConfirmed, unsigned char idService)
 {
 	unsigned char * mess;
 
 	if(isConfirmed)
 	{
-		mess = new unsigned char[9];//potwierdzenie + adres + port
+		mess = new unsigned char[14];//potwierdzenie + adres + port
 		mess[0] = 1;
 
-		Utils::loadAddress(mess, SERVICE_ADDRESS_1, 1);
+		Utils::loadAddress(mess, ClientAddress, 1);
+		Utils::loadAddress(mess, SERVICE_ADDRESS_1, 5);
 
-		mess[5] = 8;	//port
-		mess[6] = 8;
-		mess[7] = 8;
-		mess[8] = 9;
+		mess[9] = 8;	//port
+		mess[10] = 8;
+		mess[11] = 8;
+		mess[12] = 9;
+
+		mess[13] = idService; //id uslugi
+
+		//czas waznosci
+
+		//pole kontroli kryptograficznej
 	}
 	else
 	{
@@ -171,4 +176,56 @@ void TicketServer::loadServiceInfo(bool isConfirmed)
 		delete serviceInfo;
 
 	serviceInfo = mess;
+}
+
+bool TicketServer::checkClientInDatabase(unsigned char * data)
+{
+		std::fstream file;
+		file.open("../Common/database", std::ios::in);
+
+		if(!file.good())
+		{
+			std::cerr <<"Cannot find database" <<std::endl;
+			return false;
+		}
+
+		std::string clientAddress = Utils::ToString(data, 1, 5);
+		std::string clientLogin = Utils::ToStr(data, 5, 35);
+		std::string clientPassword = Utils::ToStr(data, 35, 55);
+
+		std::string addr;
+		std::string login;
+		std::string pass;
+
+		bool f = false;
+		while (getline(file, addr))//nie ma sprawdzania nazwy serwera oraz nazwy uslugi(baza tez ich nie uwzglednia)
+		{
+			getline(file, login);
+			getline(file, pass);
+			
+			std::cout << addr << std::endl;
+			std::cout << login << std::endl;
+			std::cout << pass << std::endl;
+
+			if(clientAddress == addr && clientLogin == login && clientPassword == pass)
+			{
+				f = true;
+				break;
+			}
+
+			getline(file, addr);//;
+		}
+
+		file.close();
+
+		if(f)
+			std::cout << "Found client in database" <<std::endl;
+		else
+			std::cout << "Not Found Client in database" << std::endl;
+
+
+		return f;
+
+	//	std::cout << line <<std::endl;
+
 }

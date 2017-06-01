@@ -18,6 +18,8 @@ void loadAddress(unsigned char * buffer, std::string adres, int from)
 			buffer[from++] = a;
 		}
 }
+
+
 std::string ToString(unsigned char * buff, int from, int to)
 {
 	std::stringstream ss;
@@ -31,6 +33,21 @@ std::string ToString(unsigned char * buff, int from, int to)
 	
 	return ss.str();
 }
+
+//ucina reszte po napotkaniu pierwszego bajtu==0
+std::string ToStr(unsigned char * buff, int from, int to)
+{
+	std::stringstream ss;
+
+	for(size_t i=from; i<to; ++i)
+	{	if(buff[i] == 0)
+			break;
+		ss << (char) buff[i];
+	}
+	
+	return ss.str();
+}
+
 int ToInt(unsigned char * buff, int from, int to)
 {
 	std::stringstream ss;
