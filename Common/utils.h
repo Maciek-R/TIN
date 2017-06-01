@@ -5,15 +5,13 @@
 #include <sstream>
 #include <istream>
 
-class Utils
+namespace Utils
 {
-public:
 
-	static std::string ToString(unsigned char*, int, int);
-	static std::string ToStr(unsigned char*, int, int);
-	static int ToInt(unsigned char*, int, int);
-	static void loadAddress(unsigned char *, std::string, int);
-
+	std::string ToString(unsigned char*, int, int);
+	int ToInt(unsigned char*, int, int);
+	void loadAddress(unsigned char *, std::string, int);
+	std::string ToStr(unsigned char*, int, int);
 };
 
 #endif

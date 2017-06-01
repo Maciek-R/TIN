@@ -81,7 +81,6 @@ void TicketServer::GetBroadcastMessage()
 		std::cout << "Receive Request for Ticket from Client. Client Address is: "<<ClientAddress<<" Got " << bytesRead <<" bytes\n";
 			std::cout <<"login: "<<login<<"\npassword: "<<password<<"\nnameServer: "<<nameServer<<"\nnumerService: "<<numerService<<"\n";
 
-		
 		AnswerOnRequestForTicket(AuthorizeClient(buffer), buffer[56]);
 	
 	}

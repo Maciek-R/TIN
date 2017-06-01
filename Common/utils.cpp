@@ -1,6 +1,9 @@
 #include "utils.h"
 
-void Utils::loadAddress(unsigned char * buffer, std::string adres, int from)
+namespace Utils
+{
+
+void loadAddress(unsigned char * buffer, std::string adres, int from)
 {
 	std::istringstream iss(adres);
 	std::stringstream ss;
@@ -15,8 +18,9 @@ void Utils::loadAddress(unsigned char * buffer, std::string adres, int from)
 			buffer[from++] = a;
 		}
 }
-//zmienie potem nazwe
-std::string Utils::ToString(unsigned char * buff, int from, int to)
+
+
+std::string ToString(unsigned char * buff, int from, int to)
 {
 	std::stringstream ss;
 
@@ -29,8 +33,9 @@ std::string Utils::ToString(unsigned char * buff, int from, int to)
 	
 	return ss.str();
 }
+
 //ucina reszte po napotkaniu pierwszego bajtu==0
-std::string Utils::ToStr(unsigned char * buff, int from, int to)
+std::string ToStr(unsigned char * buff, int from, int to)
 {
 	std::stringstream ss;
 
@@ -42,7 +47,8 @@ std::string Utils::ToStr(unsigned char * buff, int from, int to)
 	
 	return ss.str();
 }
-int Utils::ToInt(unsigned char * buff, int from, int to)
+
+int ToInt(unsigned char * buff, int from, int to)
 {
 	std::stringstream ss;
 
@@ -53,4 +59,6 @@ int Utils::ToInt(unsigned char * buff, int from, int to)
 	ss >> a;
 
 	return a;
+}
+
 }
