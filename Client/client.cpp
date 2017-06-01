@@ -273,32 +273,25 @@ bool Client::sendTcpEcho()
 }
 void Client::loadClientInfo()
 {
-	unsigned char * mess = new unsigned char[57];	// na razie na zywca (57, bo 4+30+20+1+1 -> dokumentacja)
-	mess[0] = 2;	//zadanie o bilet
+	//unsigned char * mess = new unsigned char[57];	// na razie na zywca (57, bo 4+30+20+1+1 -> dokumentacja)
+	clientInfo[0] = 2;	//zadanie o bilet
 
-	Utils::loadAddress(mess, CLIENT_ADDRESS, 1);
-
-	mess[5] = 'M';	//login
-	mess[6] = 'a';
-	mess[7] = 'c';
-	mess[8] = 'i';
-	mess[9] = 'e';
-	mess[10] = 'j';	
-	mess[11] = 0;
-
-	mess[35] = 'q';				//skrot hasla
-	mess[36] = 'w';
-	mess[37] = 'e';
-	mess[38] = 'r';		
-	mess[39] = 't';
-	mess[40] = 'y';
+	Utils::loadAddress(clientInfo, CLIENT_ADDRESS, 1);
+	LoadUserDataFromConsole();
 	
-	mess[41] = 0;
-
 								//na razie wstawiam tu 1 1, ale to sie bedzie zmieniac
-	mess[55] = 1;				//nazwa serwera
-	mess[56] = 1;				//nazwa uslugi (1 2 3 4) (tcpecho tcpczas udpecho udpczas)
-
-	clientInfo = mess;
+	clientInfo[55] = 1;				//nazwa serwera
+	clientInfo[56] = 1;				//nazwa uslugi (1 2 3 4) (tcpecho tcpczas udpecho udpczas)
 }
 
+void Client::LoadUserDataFromConsole()
+{
+	std::string name, password;
+	std::cout << "Username: ";
+	std::cin >> name;
+	std::cout << "Password: ";
+	std::cin >> password;
+	
+	Utils::InsertStringToCharTable(clientInfo, name, 5, 34);
+	Utils::InsertStringToCharTable(clientInfo, password, 35, 54);
+}

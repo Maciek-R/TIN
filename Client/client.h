@@ -43,7 +43,7 @@ private:
 	unsigned char buffer[1024];
 	Ticket ticket;
 
-	unsigned char * clientInfo;
+	unsigned char clientInfo[57];
 
 	void ReadInitMessage();
 
@@ -58,6 +58,8 @@ private:
 	bool sendTcpEcho();
 
 	void loadClientInfo();
+	
+	void LoadUserDataFromConsole();
 };
 
 #endif

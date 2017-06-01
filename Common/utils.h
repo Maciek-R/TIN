@@ -12,6 +12,8 @@ namespace Utils
 	int ToInt(unsigned char*, int, int);
 	void loadAddress(unsigned char *, std::string, int);
 	std::string ToStr(unsigned char*, int, int);
+	void InsertStringToCharTable(unsigned char* charTable, std::string newString, int start, int limit);
+	
 };
 
 #endif

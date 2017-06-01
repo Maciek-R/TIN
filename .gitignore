@@ -5,3 +5,8 @@ TicketServer/ticketserver
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles/
+Makefile
+client
+cmake_install.cmake
+serviceserver
+ticketserver
