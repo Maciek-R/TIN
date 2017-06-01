@@ -15,6 +15,7 @@ void Utils::loadAddress(unsigned char * buffer, std::string adres, int from)
 			buffer[from++] = a;
 		}
 }
+//zmienie potem nazwe
 std::string Utils::ToString(unsigned char * buff, int from, int to)
 {
 	std::stringstream ss;
@@ -25,6 +26,19 @@ std::string Utils::ToString(unsigned char * buff, int from, int to)
 		ss << ".";
 	}
 	ss << (int) buff[to-1];
+	
+	return ss.str();
+}
+//ucina reszte po napotkaniu pierwszego bajtu==0
+std::string Utils::ToStr(unsigned char * buff, int from, int to)
+{
+	std::stringstream ss;
+
+	for(size_t i=from; i<to; ++i)
+	{	if(buff[i] == 0)
+			break;
+		ss << (char) buff[i];
+	}
 	
 	return ss.str();
 }

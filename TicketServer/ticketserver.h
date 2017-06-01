@@ -17,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include <array>
+#include <fstream>
 
 class TicketServer
 {
@@ -41,10 +42,11 @@ private:
 	void SendMessage(int socket, const char* message) const;
 	void GetBroadcastMessage();
 	void AnswerOnBroadcastMessage();
-	void AnswerOnRequestForTicket(bool);
-	bool AuthorizeClient(std::string);
-	void loadServiceInfo(bool);
+	void AnswerOnRequestForTicket(bool, unsigned char);
+	bool AuthorizeClient(unsigned char *);
+	void loadServiceInfo(bool, unsigned char);
 
+	bool checkClientInDatabase(unsigned char *);
 public:
 	TicketServer();	
 	void Run();

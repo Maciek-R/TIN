@@ -2,7 +2,7 @@
 #include <iostream>
 
 Client::Client()
-	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.1"}, CLIENT_ADDRESS{"127.0.0.1"}, mainSocket{-1}, bytesRead{-1}, ticket{}
+	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.255"}, CLIENT_ADDRESS{"127.0.0.1"}, mainSocket{-1}, bytesRead{-1}, ticket{}
 {
 		loadClientInfo();
 }
@@ -128,8 +128,8 @@ bool Client::ReceiveTicket()
 
 	if(buffer[0] == 1)
 	{
-		ServiceAddress = Utils::ToString(buffer, 1, 5);
-		ServicePort = Utils::ToInt(buffer, 5, 9);
+		ServiceAddress = Utils::ToString(buffer, 5, 9);
+		ServicePort = Utils::ToInt(buffer, 9, 13);
 
 		std::cout << "Got Message from TicketServer. Service Address is: "<<ServiceAddress<<" Service Port: "<<ServicePort<<"\n";
 		return true;
@@ -276,22 +276,26 @@ void Client::loadClientInfo()
 
 	Utils::loadAddress(mess, CLIENT_ADDRESS, 1);
 
-	mess[5] = 'm';	//login
+	mess[5] = 'M';	//login
 	mess[6] = 'a';
 	mess[7] = 'c';
 	mess[8] = 'i';
 	mess[9] = 'e';
-	mess[10] = 'k';	
+	mess[10] = 'j';	
 	mess[11] = 0;
 
-	mess[35] = 'a';				//skrot hasla
-	mess[36] = 'b';
-	mess[37] = 'c';
-	mess[38] = 0;
+	mess[35] = 'q';				//skrot hasla
+	mess[36] = 'w';
+	mess[37] = 'e';
+	mess[38] = 'r';		
+	mess[39] = 't';
+	mess[40] = 'y';
+	
+	mess[41] = 0;
 
 								//na razie wstawiam tu 1 1, ale to sie bedzie zmieniac
 	mess[55] = 1;				//nazwa serwera
-	mess[56] = 1;				//nazwa uslugi
+	mess[56] = 1;				//nazwa uslugi (1 2 3 4) (tcpecho tcpczas udpecho udpczas)
 
 	clientInfo = mess;
 }
