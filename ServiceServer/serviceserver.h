@@ -42,7 +42,7 @@ private:
 	void AcceptNewConnection();
 	void SendMessage(int socket, const char* message) const;
 	void SetNewSocket(int socket);
-	bool AuthorizeClient(std::string);
+	bool AuthorizeClient(unsigned char *);
 public:
 	ServiceServer();
 	void Run();

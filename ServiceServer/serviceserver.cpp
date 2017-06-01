@@ -113,11 +113,18 @@ void ServiceServer::Run()
 						buffer[bytesRead] = '\0';
 						std::cout << "Message from Client nr " <<  i  << ":\t" << buffer<<"\n";
 
-						//Ticket ticket;
-						//const char* buff = ticket.ToString().c_str();
+						AuthorizeClient(buffer);
 
-						//if( send(sd , buff , strlen(buff) , 0 ) != strlen(buff))
-						if(write(sd, buffer, sizeof buffer) == -1)
+						int i=0;//tu trzeba bedzie poprawic bo jest brzydko
+						char message[1024];
+						while(buffer[i+13]!=0)
+						{
+							std::cout <<buffer[i+13];
+							message[i] = buffer[i+13];
+							++i;
+						}				//	
+
+						if(write(sd, message, i) == -1)
 							std::cerr << "Error while sending message to client\n";
 						else
 							std::cout << "Echo Message send successfully\n";
@@ -164,9 +171,21 @@ void ServiceServer::SetNewSocket(int socket)
 	}
 }
 
-bool ServiceServer::AuthorizeClient(std::string data)
+bool ServiceServer::AuthorizeClient(unsigned char * data)
 {
-	//tutaj bedzie sprawdzanie waznosci biletu
+	std::string clientAddress = Utils::ToString(data, 0, 4);
+	std::string serviceServer = Utils::ToString(data, 4, 8);
+	int servicePort = Utils::ToInt(data, 8, 12);
+	char serviceId = data[12];
+	//czas waznosci
+	//pole krypto
+
+	std::cout <<clientAddress <<std::endl;
+	std::cout <<serviceServer <<std::endl;
+	std::cout <<servicePort <<std::endl;
+	std::cout <<(int)serviceId <<std::endl;
+	
+	//tutaj sprawdzanie czy klient uprawniony do uslugi
 
 	return true;
 }

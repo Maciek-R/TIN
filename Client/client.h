@@ -41,7 +41,7 @@ private:
 	int bytesRead;
 	struct sockaddr_in address;
 	unsigned char buffer[1024];
-	Ticket ticket;
+	Ticket *ticket;
 
 	unsigned char clientInfo[57];
 
@@ -55,7 +55,8 @@ private:
 	bool SendRequestForTicket();
 	bool ReceiveTicket();
 
-	bool sendTcpEcho();
+	bool SendTcpEcho();
+	bool SendTcpTime();
 
 	void loadClientInfo();
 	
