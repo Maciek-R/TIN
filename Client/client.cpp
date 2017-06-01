@@ -33,6 +33,8 @@ bool Client::GetTicket()
 
 	return true;
 }
+
+
 bool Client::InitBroadcastSocket()
 {
 	if( (mainSocket = socket(AF_INET , SOCK_DGRAM , 0)) == -1) 

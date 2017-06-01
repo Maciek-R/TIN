@@ -90,31 +90,6 @@ void TicketServer::GetBroadcastMessage()
 		std::cout << "Unknown Message\n";
 		return;
 	}
-	/*std::string data = buffer;
-	if(data[0] == '1')
-	{
-		ClientAddress = data.substr(1, data.length());
-		
-		AnswerOnBroadcastMessage();
-	}
-	else if(data[0] == '2')
-	{
-		ClientAddress = data.substr(1, data.length());
-		std::cout << "Receive Request for Ticket from Client. Client Address is: "<<ClientAddress<<"\n";
-
-		if(AuthorizeClient(data.substr(1, data.length())))
-			AnswerOnRequestForTicket(true);
-		else
-			AnswerOnRequestForTicket(false);
-	}
-	else{
-		std::cout << "Unknown Message\n";
-		return;
-	}*/
-
-	//std::cout << "Got message from address: "<<buffer<<"\n";
-	//std::string data = buffer;
-
 	
 }
 
