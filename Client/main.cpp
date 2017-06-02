@@ -11,6 +11,11 @@ int main(int argc , char** argv)
 	//
 	//client.GetTicketServerAddress() // komunikat rozgloszeniowy
 	//
+	
+	//logowanie usera
+	
+	
+	
 	if(client.GetTicketServerAddress())
 	{
 		if(client.GetTicket())

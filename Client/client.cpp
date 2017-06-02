@@ -351,6 +351,10 @@ void Client::LoadUserDataFromConsole()
 	std::cout << "Password: ";
 	std::cin >> password;
 	
+    unsigned char hash[20];
+
+    SHA1((unsigned char*)password.c_str(), password.size(), hash);
+	
 	Utils::InsertStringToCharTable(clientInfo, name, 5, 34);
-	Utils::InsertStringToCharTable(clientInfo, password, 35, 54);
+	Utils::InsertStringToCharTable(clientInfo, Utils::ToStr(hash,0,18), 35, 54);
 }

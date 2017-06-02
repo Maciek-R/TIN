@@ -15,6 +15,8 @@
 #include <string>
 #include <sstream>
 #include <istream>
+#include <openssl/sha.h>
+
 #include "../Common/ticket.h"
 #include "../Common/utils.h"
 

@@ -9,3 +9,15 @@ file(GLOB serviceserver_SOURCES "ServiceServer/*.h" "ServiceServer/*.cpp" "Commo
 add_executable(client ${client_SOURCES})
 add_executable(ticketserver ${ticketserver_SOURCES})
 add_executable(serviceserver ${serviceserver_SOURCES})
+
+set(OPENSSL_LIBRARIES
+    -L$/usr/lib/x86_64-linux-gnu
+    -lssl libssl.a
+    -lcrypto libcrypto.a)
+
+
+target_link_libraries(
+client
+${OPENSSL_LIBRARIES}
+)
+
