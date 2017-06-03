@@ -14,6 +14,7 @@ public:
 	void SetServiceId(unsigned char);
 	unsigned char * GetAsBuffor(int &size);
 	void SetValidateTime(int time);
+	void SetCheckSum(std::string checkSum);
 	
 
 private:
@@ -22,7 +23,7 @@ private:
 	int servicePort;
 	char serviceId;
 	int validateTime; //in seconds
-	//TODO: checksum
+	std::string checkSum;
 };
 
 #endif

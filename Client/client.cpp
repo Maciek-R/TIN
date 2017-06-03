@@ -130,7 +130,8 @@ bool Client::ReceiveTicket()
 		serviceAddress = Utils::ToString(buffer, 5, 9);
 		servicePort = Utils::ToInt(buffer, 9, 13);
 
-		std::cout << "Got Message from TicketServer. Service Address is: "<<serviceAddress<<" Service Port: "<<servicePort<<"\n";
+		std::cout << "Got Message from TicketServer. Service Address is: "<<serviceAddress<<" Service Port: "<<servicePort
+					<<"time: " << buffer[14] << buffer[15]<<"\n";
 		return true;
 	}
 	else if (buffer[0]==0)

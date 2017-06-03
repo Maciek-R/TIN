@@ -22,6 +22,7 @@ namespace Utils
 	std::string DetectIP(InterfaceType interfaceType);
 	void InsertNumberToCharTable(unsigned char* charTable ,long number, int star, int limit);
 	std::string TicketMessageToString(unsigned char* charTable);
+	
 };
 
 #endif
