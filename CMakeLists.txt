@@ -23,7 +23,15 @@ client
 ${OPENSSL_LIBRARIES}
 )
 
+
+target_link_libraries(
+ticketserver
+${OPENSSL_LIBRARIES}
+)
+
+
 target_link_libraries(serviceserver pthread)
+
 
 file(COPY "Common/database" DESTINATION "./")
 file(COPY "Common/serversdatabase" DESTINATION "./")

@@ -20,6 +20,8 @@
 #include <assert.h>
 #include "../Common/ServiceDataBaseManager.h"
 #include "../Common/network_object.h"
+#include <openssl/sha.h>
+
 
 class TicketServer : public NetworkObject
 {

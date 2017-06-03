@@ -13,14 +13,17 @@ public:
 	void SetServicePort(int);
 	void SetServiceId(unsigned char);
 	unsigned char * GetAsBuffor(int &size);
+	void SetValidateTime(int time);
+	void SetCheckSum(std::string checkSum);
+	
 
 private:
 	std::string clientAddress;
 	std::string serviceAddress;
 	int servicePort;
 	char serviceId;
-	//czas waznosci
-	//pole kontroli kryptograficznej
+	int validateTime; //in seconds
+	std::string checkSum;
 };
 
 #endif

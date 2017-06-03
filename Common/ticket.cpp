@@ -21,7 +21,7 @@ void Ticket::SetServiceId(unsigned char id)
 }
 unsigned char * Ticket::GetAsBuffor(int &size)
 {
-	size = 13;
+	size = 45;
 	unsigned char * mess = new unsigned char[size];	//rozmiar sie zmieni potem
 	Utils::LoadAddress(mess, clientAddress, 0);
 	Utils::LoadAddress(mess, serviceAddress, 4);
@@ -32,7 +32,24 @@ unsigned char * Ticket::GetAsBuffor(int &size)
 	mess[11] = 9;
 
 	mess[12] = serviceId;
+	
+	std::string validateTime = std::to_string(10);
+	Utils::InsertStringToCharTable(mess, validateTime, 14, 29);
 
+	for(unsigned int i = 0; i < 16 ; ++i)
+	{
+		mess[30+i] = checkSum[i];
+	}
 
 	return mess;
+}
+
+void Ticket::SetValidateTime(int time)
+{
+	validateTime = time;
+}
+
+void Ticket::SetCheckSum(std::string checkSum)
+{
+	this->checkSum = checkSum;
 }

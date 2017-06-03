@@ -135,7 +135,8 @@ bool Client::ReceiveTicket()
 		serviceAddress = Utils::ToString(buffer, 5, 9);
 		servicePort = Utils::ToInt(buffer, 9, 13);
 
-		std::cout << "Got Message from TicketServer. Service Address is: "<<serviceAddress<<" Service Port: "<<servicePort<<"\n";
+		std::cout << "Got Message from TicketServer. Service Address is: "<<serviceAddress<<" Service Port: "<<servicePort
+					<<"time: " << buffer[14] << buffer[15]<<"\n";
 		return true;
 	}
 	else if (buffer[0]==0)
@@ -281,12 +282,10 @@ bool Client::SendTcpTime()
 }
 void Client::LoadClientInfo(int serviceID)
 {
-	//unsigned char * mess = new unsigned char[57];	// na razie na zywca (57, bo 4+30+20+1+1 -> dokumentacja)
 	clientInfo[0] = 2;	//zadanie o bilet
 
 	Utils::LoadAddress(clientInfo, CLIENT_ADDRESS, 1);
 	LoadUserDataFromConsole();
-	
 								//na razie wstawiam tu 1 1, ale to sie bedzie zmieniac
 	clientInfo[55] = 0;//1;				//nazwa serwera
 	clientInfo[56] = serviceID;				//nazwa uslugi (1 2 3 4) (tcpecho tcpczas udpecho udpczas)
@@ -301,7 +300,7 @@ void Client::LoadUserDataFromConsole()
 	std::cin >> password;
 	
 	unsigned char hash[20];
-
+	
 	unsigned char* resultSHA = SHA1(reinterpret_cast<const unsigned char*>(password.c_str()), password.size(), hash);
 	
 	Utils::InsertStringToCharTable(clientInfo, name, 5, 34);

@@ -2,6 +2,9 @@
 #include <vector>
 #include <iostream>
 
+
+//class AuthorizeClient;
+
 ServiceServer::ServiceServer(int serviceID, int port)
 	: SERVICE_ID{serviceID}, PORT{port}, ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, LISTENING_PORT{8886}, opt{true}, mainSocket{-1}, listeningSocket{-1}
 {
@@ -125,14 +128,14 @@ void ServiceServer::Run()
 
 						AuthorizeClient(buffer);
 
-						int i=0;//tu trzeba bedzie poprawic bo jest brzydko
+						int i=0;//tu trzeba bedzie poprawic bo jest brzydko // taaa....
 						char message[1024];
-						while(buffer[i+13]!=0)
+						while(buffer[i+45]!=0)
 						{
-							std::cout <<buffer[i+13];
-							message[i] = buffer[i+13];
+							std::cout <<buffer[i+45];
+							message[i] = buffer[i+45];
 							++i;
-						}				//	
+						}
 
 						if(write(sd, message, i) == -1)
 							std::cerr << "Error while sending message to client\n";
@@ -194,6 +197,25 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 	std::cout <<serviceServer <<std::endl;
 	std::cout <<servicePort <<std::endl;
 	std::cout <<(int)serviceId <<std::endl;
+	
+	int currentPointer = 14;
+	std::cout << "Validate[s]: ";
+	while((int)data[currentPointer])
+	{
+		std::cout << (int)(data[currentPointer] - '0');
+		++currentPointer;
+	}
+	std::cout <<"\n";
+	
+	currentPointer = 30;
+	
+	std::cout << "Checksum: ";
+	while((int)data[currentPointer])
+	{
+		std::cout << (int)(data[currentPointer]);
+		++currentPointer;
+	}
+	std::cout <<"\n";
 	
 	//tutaj sprawdzanie czy klient uprawniony do uslugi
 
