@@ -4,9 +4,10 @@
 
 
 Client::Client()
-	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.255"}, CLIENT_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, mainSocket{-1}, bytesRead{-1}, ticket{}
+	: CLIENT_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, BROADCAST_PORT{8888}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(CLIENT_ADDRESS, "255.255.255.0")}, mainSocket{-1}, bytesRead{-1}, ticket{}
 {
 		std::cout << CLIENT_ADDRESS << "\n";
+		std::cout << BROADCAST_ADDRESS << "\n";
 		LoadClientInfo();
 }
 
@@ -190,8 +191,8 @@ bool Client::SendTcpEcho()
 	}
 	char message[1024];
 	std::cout <<"Type Message: ";
-	std::string info = "Maciek Ty spierdolino!\0";
 
+	std::string info;
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	std::getline(std::cin, info);
 
