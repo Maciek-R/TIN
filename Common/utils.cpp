@@ -67,10 +67,12 @@ namespace Utils
 		int difference = limit - start;
 		
 		unsigned int i;
-		for(i = 0; (i < newString.size() || (i >= difference)); ++i)
+		for(i = 0; (i < newString.size() && (i <= difference)); ++i)
 		{
 			*currentChar = newString[i];
 			++currentChar;
 		}
+		
+		*currentChar = '\0';
 	}
 }
