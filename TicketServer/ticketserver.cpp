@@ -106,7 +106,7 @@ void TicketServer::AnswerOnBroadcastMessage()
 
 	//unsigned int lenAddr = message.length()+1;
 	unsigned char message[4];
-	Utils::loadAddress(message, TICKET_SERVER_ADDRESS, 0);
+	Utils::LoadAddress(message, TICKET_SERVER_ADDRESS, 0);
 	
 	if(sendto(mainSocket, message, 4, 0, (struct sockaddr *) &address, sizeof(address)) != 4)
 	{
@@ -152,8 +152,8 @@ void TicketServer::loadServiceInfo(bool isConfirmed, unsigned char idService)
 		mess = new unsigned char[14];//potwierdzenie + adres + port
 		mess[0] = 1;
 
-		Utils::loadAddress(mess, ClientAddress, 1);
-		Utils::loadAddress(mess, SERVICE_ADDRESS_1, 5);
+		Utils::LoadAddress(mess, ClientAddress, 1);
+		Utils::LoadAddress(mess, SERVICE_ADDRESS_1, 5);
 
 		mess[9] = 8;	//port
 		mess[10] = 8;

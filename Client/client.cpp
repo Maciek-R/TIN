@@ -46,7 +46,7 @@ bool Client::InitBroadcastSocket()
 bool Client::SendBroadcastMessage()
 {
 	unsigned char message[5] {1};
-	Utils::loadAddress(message, CLIENT_ADDRESS, 1);
+	Utils::LoadAddress(message, CLIENT_ADDRESS, 1);
 	if(sendto(mainSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
 	{
 		std::cerr << "Error while sending broadcast message";
@@ -113,12 +113,11 @@ bool Client::ReceiveTicket()
 
 	if(buffer[0] == 1)
 	{
-		//Wypierdolić to new
-		ticket = new Ticket();
-		ticket->SetClientAddress(Utils::ToString(buffer, 1, 5));
-		ticket->SetServiceAddress(Utils::ToString(buffer, 5, 9));
-		ticket->SetServicePort(Utils::ToInt(buffer, 9, 13));
-		ticket->SetServiceId(buffer[13]);
+		ticket = Ticket{};
+		ticket.SetClientAddress(Utils::ToString(buffer, 1, 5));
+		ticket.SetServiceAddress(Utils::ToString(buffer, 5, 9));
+		ticket.SetServicePort(Utils::ToInt(buffer, 9, 13));
+		ticket.SetServiceId(buffer[13]);
 
 		ServiceAddress = Utils::ToString(buffer, 5, 9);
 		ServicePort = Utils::ToInt(buffer, 9, 13);
@@ -188,7 +187,7 @@ bool Client::SendTcpEcho()
 	{	
 		info[strlen(info)-1] = 0;
 		int size;
-		unsigned char * buff = ticket->GetAsBuffor(size);
+		unsigned char * buff = ticket.GetAsBuffor(size);
 		
 		for(int i=0; i<size; ++i)// trzeba bedzie to poprawic na ladniej
 			message[i] = buff[i];
@@ -264,7 +263,7 @@ void Client::LoadClientInfo()
 	//unsigned char * mess = new unsigned char[57];	// na razie na zywca (57, bo 4+30+20+1+1 -> dokumentacja)
 	clientInfo[0] = 2;	//zadanie o bilet
 
-	Utils::loadAddress(clientInfo, CLIENT_ADDRESS, 1);
+	Utils::LoadAddress(clientInfo, CLIENT_ADDRESS, 1);
 	LoadUserDataFromConsole();
 	
 								//na razie wstawiam tu 1 1, ale to sie bedzie zmieniac

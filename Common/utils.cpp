@@ -3,7 +3,7 @@
 namespace Utils
 {
 
-	void loadAddress(unsigned char * buffer, std::string adres, int from)
+	void LoadAddress(unsigned char * buffer, std::string adres, int from)
 	{
 		std::istringstream iss(adres);
 		std::stringstream ss;

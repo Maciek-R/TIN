@@ -23,8 +23,8 @@ unsigned char * Ticket::GetAsBuffor(int &size)
 {
 	size = 13;
 	unsigned char * mess = new unsigned char[size];	//rozmiar sie zmieni potem
-	Utils::loadAddress(mess, clientAddress, 0);
-	Utils::loadAddress(mess, serviceAddress, 4);
+	Utils::LoadAddress(mess, clientAddress, 0);
+	Utils::LoadAddress(mess, serviceAddress, 4);
 
 	mess[8] = 8;	//tu zmienic
 	mess[9] = 8;	//na metode ktora zamienia inta na 4 bajty
