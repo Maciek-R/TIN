@@ -30,12 +30,17 @@ private:
 	const int PORT;
 	const std::string SERVICE_ADDRESS_1;
 	const std::string TICKET_SERVER_ADDRESS;
+	const std::string BROADCAST_ADDRESS;
+	const int BROADCAST_PORT;
 	std::string ClientAddress;
 	bool opt;
 	int addrlen;
 	int mainSocket;
+	int broadcastSocket;
 
 	struct sockaddr_in address;
+	sockaddr_in broadcastAddress;
+	int broadcastAddrlen;
 	unsigned char buffer[1024];	
 	fd_set readfds;
 
@@ -43,9 +48,11 @@ private:
 
 	void CreateMainSocket();
 	void BindMainSocket();
+	bool InitBroadcastSocket();
 
 	void SendMessage(int socket, const char* message) const;
 	void GetBroadcastMessage();
+	bool SendBroadcastMessage(int serviceID);
 	void AnswerOnBroadcastMessage();
 	void AnswerOnRequestForTicket(bool, unsigned char);
 	bool AuthorizeClient(unsigned char *);

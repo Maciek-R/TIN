@@ -2,6 +2,7 @@
 #include <ifaddrs.h>
 #include <assert.h>
 #include <arpa/inet.h>
+#include <iostream>
 
 namespace Utils
 {
@@ -129,6 +130,7 @@ namespace Utils
 		return ip;
 	}
 
+
 	std::string TicketMessageToString(unsigned char* charTable)
 	{
 		std::string result;
@@ -164,5 +166,34 @@ namespace Utils
 		}
 		
 		return result;
+	}
+	
+	std::string CalculateBroadCast(std::string ip, std::string subnetMask)
+	{
+		const char *host_ip = ip.c_str();
+		const char *netmask = subnetMask.c_str();
+		struct in_addr host, mask, broadcast;
+		char broadcast_address[INET_ADDRSTRLEN];
+		if (inet_pton(AF_INET, host_ip, &host) == 1 &&
+			inet_pton(AF_INET, netmask, &mask) == 1)
+		{
+			broadcast.s_addr = host.s_addr | ~mask.s_addr;
+		}
+		else
+		{
+			std::cerr << "Failed converting strings to numbers\n";
+			exit(1);
+		}
+
+		if (inet_ntop(AF_INET, &broadcast, broadcast_address, INET_ADDRSTRLEN) != NULL)
+		{
+			return std::string{broadcast_address};
+		}
+		else
+		{
+			std::cerr << "Failed converting number to string\n";
+			exit(1);
+		}
+
 	}
 }

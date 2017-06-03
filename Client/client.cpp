@@ -4,10 +4,11 @@
 
 
 Client::Client()
-	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.255"}, CLIENT_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, mainSocket{-1}, bytesRead{-1}, ticket{}
+	: CLIENT_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, BROADCAST_PORT{8888}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(CLIENT_ADDRESS, "255.255.255.0")}, mainSocket{-1}, bytesRead{-1}, ticket{}
 {
 		std::cout << CLIENT_ADDRESS << "\n";
-		LoadClientInfo();
+		std::cout << BROADCAST_ADDRESS << "\n";
+		LoadClientInfo(1);
 }
 
 Client::~Client()
@@ -22,6 +23,7 @@ bool Client::GetTicketServerAddress()
 
 	return true;
 }
+
 bool Client::GetTicket()
 {
 	if(!InitSocketWithTicketServer() || !SendRequestForTicket() || !ReceiveTicket())
@@ -51,6 +53,7 @@ bool Client::InitBroadcastSocket()
 
 	return true;
 }
+
 bool Client::SendBroadcastMessage()
 {
 	unsigned char message[5] {1};
@@ -62,6 +65,7 @@ bool Client::SendBroadcastMessage()
 	}
 	return true;
 }
+
 bool Client::ReceiveTicketServerAddress()
 {
 	int addrlen = sizeof(address);
@@ -126,6 +130,7 @@ bool Client::ReceiveTicket()
 		ticket.SetServiceAddress(Utils::ToString(buffer, 5, 9));
 		ticket.SetServicePort(Utils::ToInt(buffer, 9, 13));
 		ticket.SetServiceId(buffer[13]);
+		std::cout << (int)buffer[13] << "\n";
 
 		serviceAddress = Utils::ToString(buffer, 5, 9);
 		servicePort = Utils::ToInt(buffer, 9, 13);
@@ -170,7 +175,6 @@ bool Client::RunService(int numService)
 		case 3: break;
 		case 4: break;
 	}
-	
 
 }
 bool Client::SendTcpEcho()
@@ -191,8 +195,8 @@ bool Client::SendTcpEcho()
 	}
 	char message[1024];
 	std::cout <<"Type Message: ";
-	std::string info = "Maciek Ty spierdolino!\0";
 
+	std::string info;
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	std::getline(std::cin, info);
 
@@ -276,15 +280,15 @@ bool Client::SendTcpTime()
 	}
 	return true;
 }
-void Client::LoadClientInfo()
+void Client::LoadClientInfo(int serviceID)
 {
 	clientInfo[0] = 2;	//zadanie o bilet
 
 	Utils::LoadAddress(clientInfo, CLIENT_ADDRESS, 1);
 	LoadUserDataFromConsole();
 								//na razie wstawiam tu 1 1, ale to sie bedzie zmieniac
-	clientInfo[55] = 1;				//nazwa serwera
-	clientInfo[56] = 1;				//nazwa uslugi (1 2 3 4) (tcpecho tcpczas udpecho udpczas)
+	clientInfo[55] = 0;//1;				//nazwa serwera
+	clientInfo[56] = serviceID;				//nazwa uslugi (1 2 3 4) (tcpecho tcpczas udpecho udpczas)
 }
 
 void Client::LoadUserDataFromConsole()
