@@ -187,7 +187,7 @@ bool Client::SendTcpEcho()
 	std::cin.ignore();
 	std::getline(std::cin, info);
 	std::cout << "Info " << info << "\n";
-	if(info.size() > 1)
+	if(info.size() > 0)
 	{
 		int size;
 		unsigned char * buff = ticket.GetAsBuffor(size);
