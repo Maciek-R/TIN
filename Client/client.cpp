@@ -281,18 +281,8 @@ void Client::LoadUserDataFromConsole()
 	
 	unsigned char hash[20];
 
-
 	unsigned char* resultSHA = SHA1(reinterpret_cast<const unsigned char*>(password.c_str()), password.size(), hash);
 	
-	for(unsigned int i = 0; i < 20; ++i)
-	{
-		//std::cout << (int)resultSHA[i];
-		clientInfo[35 + i] = resultSHA[i];
-	}
-	
-	
 	Utils::InsertStringToCharTable(clientInfo, name, 5, 34);
-	//std::cout << "haslo: " <<  << "\n";
-
-	//Utils::InsertStringToCharTable(clientInfo, Utils::ToStr(resultSHA,0,20), 35, 54);
+	Utils::InsertStringToCharTable(clientInfo, Utils::ToStr(resultSHA,0,20), 35, 54);
 }
