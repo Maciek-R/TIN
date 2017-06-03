@@ -24,7 +24,6 @@ class Client
 {
 public:
 	Client();
-	void Run();
 	bool GetServiceAddress();
 	bool RunService(int);
 
@@ -34,16 +33,16 @@ private:
 	const std::string CLIENT_ADDRESS;
 	const int BROADCAST_PORT;
 	const std::string BROADCAST_ADDRESS;
-	std::string ServiceAddress;
-	int ServicePort;
-	std::string TicketServerAddress;
+	std::string serviceAddress;
+	int servicePort;
+	std::string ticketServerAddress;
 
 	int broadcastPermission;
 	int mainSocket;
 	int bytesRead;
 	struct sockaddr_in address;
 	unsigned char buffer[1024];
-	Ticket *ticket;
+	Ticket ticket;
 
 	unsigned char clientInfo[57];
 
@@ -60,7 +59,7 @@ private:
 	bool SendTcpEcho();
 	bool SendTcpTime();
 
-	void loadClientInfo();
+	void LoadClientInfo();
 	
 	void LoadUserDataFromConsole();
 };
