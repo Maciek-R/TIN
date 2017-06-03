@@ -19,8 +19,9 @@
 #include <array>
 #include <fstream>
 #include <assert.h>
+#include "../Common/network_object.h"
 
-class TicketServer
+class TicketServer : public NetworkObject
 {
 private:
 	const int PORT;

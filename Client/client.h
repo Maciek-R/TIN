@@ -19,8 +19,9 @@
 
 #include "../Common/ticket.h"
 #include "../Common/utils.h"
+#include "../Common/network_object.h"
 
-class Client
+class Client : public NetworkObject
 {
 public:
 	Client();

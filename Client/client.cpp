@@ -2,14 +2,9 @@
 #include <iostream>
 #include <limits>
 
-#ifdef BUILD_WLAN
-InterfaceType Client::interfaceType = InterfaceType::WLAN;
-#else
-InterfaceType Client::interfaceType = InterfaceType::ETH;
-#endif
 
 Client::Client()
-	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.255"}, CLIENT_ADDRESS{/*"127.0.0.1"*/Utils::DetectIP(interfaceType)}, mainSocket{-1}, bytesRead{-1}, ticket{}
+	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.255"}, CLIENT_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, mainSocket{-1}, bytesRead{-1}, ticket{}
 {
 		std::cout << CLIENT_ADDRESS << "\n";
 		LoadClientInfo();
