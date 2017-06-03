@@ -50,6 +50,7 @@ private:
 	bool checkClientInDatabase(unsigned char *);
 public:
 	TicketServer();	
+	~TicketServer();
 	void Run();
 };
 

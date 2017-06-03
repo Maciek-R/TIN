@@ -7,6 +7,11 @@ Client::Client()
 		LoadClientInfo();
 }
 
+Client::~Client()
+{
+	close(mainSocket);
+}
+
 bool Client::GetTicketServerAddress()
 {
 	if(!InitBroadcastSocket() || !SendBroadcastMessage() || !ReceiveTicketServerAddress())

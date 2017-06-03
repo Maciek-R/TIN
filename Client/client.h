@@ -24,6 +24,7 @@ class Client
 {
 public:
 	Client();
+	~Client();
 	bool GetServiceAddress();
 	bool RunService(int);
 	bool GetTicketServerAddress();

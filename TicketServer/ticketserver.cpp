@@ -8,6 +8,12 @@ TicketServer::TicketServer()
 	CreateMainSocket();
 	BindMainSocket();
 }
+
+TicketServer::~TicketServer()
+{
+	close(mainSocket);
+}
+
 void TicketServer::CreateMainSocket()
 {
 	if((mainSocket = socket(AF_INET, SOCK_DGRAM, 0)) == 0)
