@@ -181,7 +181,7 @@ void TicketServer::loadServiceInfo(bool isConfirmed, unsigned char idService)
 bool TicketServer::checkClientInDatabase(unsigned char * data)
 {
 		std::fstream file;
-		file.open("..Common/database", std::ios::in);
+		file.open("Common/database", std::ios::in);
 
 		if(!file.good())
 		{
@@ -207,7 +207,7 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 			std::cout << login << std::endl;
 			std::cout << pass << std::endl;
 
-			if(clientAddress == addr && clientLogin == login && clientPassword == pass)
+			if(/*clientAddress == addr && */clientLogin == login /*&& clientPassword == pass*/)
 			{
 				f = true;
 				break;

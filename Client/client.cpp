@@ -356,9 +356,8 @@ void Client::LoadUserDataFromConsole()
 
 	SHA1(reinterpret_cast<const unsigned char*>(password.c_str()), password.size(), hash);
 	
-	
 	Utils::InsertStringToCharTable(clientInfo, name, 5, 34);
-	
+	std::cout << "haslo: " << hash << "\n";
 
 	Utils::InsertStringToCharTable(clientInfo, Utils::ToStr(hash,0,19), 35, 54);
 }
