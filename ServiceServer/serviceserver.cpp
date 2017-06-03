@@ -193,7 +193,24 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 	std::cout <<servicePort <<std::endl;
 	std::cout <<(int)serviceId <<std::endl;
 	
-	std::cout << "chuj: " << (int)data[13] << " " << (int)data[14] <<"\n";
+	int currentPointer = 14;
+	std::cout << "Validate[s]: ";
+	while((int)data[currentPointer])
+	{
+		std::cout << (int)(data[currentPointer] - '0');
+		++currentPointer;
+	}
+	std::cout <<"\n";
+	
+	currentPointer = 30;
+	
+	std::cout << "Checksum: ";
+	while((int)data[currentPointer])
+	{
+		std::cout << (int)(data[currentPointer]);
+		++currentPointer;
+	}
+	std::cout <<"\n";
 	
 	//tutaj sprawdzanie czy klient uprawniony do uslugi
 

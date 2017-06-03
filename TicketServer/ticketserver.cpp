@@ -165,25 +165,27 @@ void TicketServer::loadServiceInfo(bool isClientAuthorized, unsigned char idServ
 		
 		Utils::InsertStringToCharTable(mess, validateTime, 14, 29);
 		
-		std::cout << "Ticket: ";
-		for(unsigned int i = 0; i < 46 ; ++i)
-		{
-			std::cout << (int)mess[i] << " ";
-		}
-		
-		std::cout << "\n";
 		
 		//pole kontroli kryptograficznej  - napisz to wszytko w utils
 		std::string ticketMessageAsString = Utils::TicketMessageToString(mess);
 		
 		unsigned char hash[16];
 		unsigned char* checkSum = SHA1(reinterpret_cast<const unsigned char*>(ticketMessageAsString.c_str()), ticketMessageAsString.size(), hash);
-		std::cout << "checksum: ";
+		std::cout << "checksum: \n";
 		for(unsigned int i = 0; i < 16 ; ++i)
 		{
-			mess[30+i] << (int)checkSum[i];
+			mess[30+i] = (int)checkSum[i];
+			std::cout << (int)checkSum[i] << "\n";
 		}
 		
+		
+				std::cout << "Ticket: ";
+		for(unsigned int i = 0; i < 46 ; ++i)
+		{
+			std::cout << (int)mess[i] << " ";
+		}
+		
+		std::cout << "\n";
 	}
 	else
 	{
