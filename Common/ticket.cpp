@@ -33,6 +33,10 @@ unsigned char * Ticket::GetAsBuffor(int &size)
 
 	mess[12] = serviceId;
 
-
 	return mess;
+}
+
+void Ticket::SetValidateTime(int time)
+{
+	validateTime = time;
 }

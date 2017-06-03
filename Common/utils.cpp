@@ -79,6 +79,20 @@ namespace Utils
 		*currentChar = '\0';
 	}
 
+	void InsertNumberToCharTable(unsigned char* charTable ,long number, int start, int limit)
+	{
+		std::string numberAsAString = std::to_string(number);
+		
+		unsigned char* currentChar = charTable + start;
+		int difference = limit - start;
+		
+		unsigned int i;
+		for(i = 0; (i < numberAsAString.size() && (i <= difference)); ++i)
+		{
+			*currentChar = numberAsAString[i] - '0';
+		}
+	}
+
 	std::string DetectIP(InterfaceType interfaceType)
 	{
 		ifaddrs* ifAddrStruct = nullptr;
@@ -113,5 +127,42 @@ namespace Utils
 
 		assert(ip != "");
 		return ip;
+	}
+
+	std::string TicketMessageToString(unsigned char* charTable)
+	{
+		std::string result;
+		/*
+		Utils::LoadAddress(mess, ClientAddress, 1);
+		Utils::LoadAddress(mess, SERVICE_ADDRESS_1, 5);
+
+		mess[9] = 8;	//port 
+		mess[10] = 8;
+		mess[11] = 8;
+		mess[12] = 9;
+		mess[13] = idService; //id uslugi
+
+		//czas waznosci
+		//od 14 do 29
+		std::string validateTime = std::to_string(10);
+		
+		Utils::InsertStringToCharTable(mess, validateTime, 14, 29);
+		
+		std::cout << "Ticket: ";
+		for(unsigned int i = 0; i < 46 ; ++i)
+			*/
+		unsigned int i;
+		for(i = 1; i<14; ++i)
+		{
+			result += std::to_string((int)charTable[i]);
+		}
+		
+		while(charTable[i])
+		{
+			result += std::to_string(charTable[i]);
+			++i;
+		}
+		
+		return result;
 	}
 }
