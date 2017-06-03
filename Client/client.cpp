@@ -4,31 +4,19 @@
 Client::Client()
 	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.255"}, CLIENT_ADDRESS{"127.0.0.1"}, mainSocket{-1}, bytesRead{-1}, ticket{}
 {
-		loadClientInfo();
+		LoadClientInfo();
 }
 
 bool Client::GetTicketServerAddress()
 {
-	if(!InitBroadcastSocket())
-		return false;
-
-	if(!SendBroadcastMessage())
-		return false;
-
-	if(!ReceiveTicketServerAddress())
+	if(!InitBroadcastSocket() || !SendBroadcastMessage() || !ReceiveTicketServerAddress())
 		return false;
 
 	return true;
 }
 bool Client::GetTicket()
 {
-	if(!InitSocketWithTicketServer())
-		return false;
-
-	if(!SendRequestForTicket())
-		return false;
-	
-	if(!ReceiveTicket())
+	if(!InitSocketWithTicketServer() || !SendRequestForTicket() || !ReceiveTicket())
 		return false;
 
 	return true;
@@ -43,9 +31,9 @@ bool Client::InitBroadcastSocket()
 		return false;
 	}
 	broadcastPermission = 1;
-    if (setsockopt(mainSocket, SOL_SOCKET, SO_BROADCAST, (void *) &broadcastPermission, sizeof(broadcastPermission)) < 0)
+	if (setsockopt(mainSocket, SOL_SOCKET, SO_BROADCAST, (void *) &broadcastPermission, sizeof(broadcastPermission)) < 0)
 	{
-        std::cerr<<"setsockopt() failed";
+		std::cerr<<"setsockopt() failed";
 		return false;
 	}
 	
@@ -64,11 +52,6 @@ bool Client::SendBroadcastMessage()
 		std::cerr << "Error while sending broadcast message";
 		return false;
 	}
-	/*if(sendto(mainSocket, message.c_str(), lenAddr, 0, (struct sockaddr *) &address, sizeof(address)) != lenAddr)
-	{
-		std::cerr << "Error while sending broadcast message";
-		return false;
-	}*/
 	return true;
 }
 bool Client::ReceiveTicketServerAddress()
@@ -130,6 +113,7 @@ bool Client::ReceiveTicket()
 
 	if(buffer[0] == 1)
 	{
+		//Wypierdolić to new
 		ticket = new Ticket();
 		ticket->SetClientAddress(Utils::ToString(buffer, 1, 5));
 		ticket->SetServiceAddress(Utils::ToString(buffer, 5, 9));
@@ -147,24 +131,12 @@ bool Client::ReceiveTicket()
 		std::cout << "Got Message from TicketServer. You are not on VIP list!\n";
 		return false;
 	}
-	else{
+	else
+	{
 		std::cout << "Unknown message\n";
 		return false;
 	}
-close(mainSocket);
-	
-/*
-	std::string data;
-	if(bytesRead == 1)
-		data = ToString(buffer, 0, 1);
-	
-	else if(bytesRead == 4)
-		data = ToString(buffer, 0, 4);
-	else
-		std::cout << "Error\n";
-
 	close(mainSocket);
-	return TranslateMessageFromTicketServer(data);*/
 }
 
 void Client::ReadInitMessage()
@@ -180,50 +152,7 @@ void Client::ReadInitMessage()
 		std::cout << "From Server: " << buffer << '\n';
 	}
 }
-void Client::Run()
-{	
-/*	while(fgets(buffer, 51, stdin) != nullptr)
-	{	
-		if(write(mainSocket, buffer, sizeof buffer) == -1)
-			std::cerr << "error while sending message\n";
-	}	
 
-	close(mainSocket);*/
-}
-/*bool Client::SendRequestForTicket()
-{
-	//TODO
-	//create ticket object
-	
-
-	//buffer[0] = 'T';
-	//buffer[1] = '\0';
-
-	printf("Requesting for Ticket\n");
-	std::string s = PrepareData();
-	const char* data = s.c_str();
-	if (write(mainSocket, data, strlen(data)) == -1)
-	{
-		std::cerr << "Error request Ticket\n";
-		return false;
-	}
-	
-	if((bytesRead = read(mainSocket, buffer, 1024)) == 0)
-	{
-		std::cerr << "Error receiving Ticket\n";
-		return false;
-	}
-	else
-	{
-		buffer[bytesRead] = '\0';
-		std::cerr << "Got Ticket: " << buffer << '\n';
-		//TODO saving ticket
-		//
-		//
-	}
-	close(mainSocket);
-	return true;
-}*/
 bool Client::RunService(int numService)
 {
 	switch(numService)
@@ -330,7 +259,7 @@ bool Client::SendTcpTime()
 	}
 	return true;
 }
-void Client::loadClientInfo()
+void Client::LoadClientInfo()
 {
 	//unsigned char * mess = new unsigned char[57];	// na razie na zywca (57, bo 4+30+20+1+1 -> dokumentacja)
 	clientInfo[0] = 2;	//zadanie o bilet
@@ -351,7 +280,7 @@ void Client::LoadUserDataFromConsole()
 	std::cout << "Password: ";
 	std::cin >> password;
 	
-    unsigned char hash[20];
+	unsigned char hash[20];
 
 
 	SHA1(reinterpret_cast<const unsigned char*>(password.c_str()), password.size(), hash);

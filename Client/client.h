@@ -24,7 +24,6 @@ class Client
 {
 public:
 	Client();
-	void Run();
 	bool GetServiceAddress();
 	bool RunService(int);
 
@@ -60,7 +59,7 @@ private:
 	bool SendTcpEcho();
 	bool SendTcpTime();
 
-	void loadClientInfo();
+	void LoadClientInfo();
 	
 	void LoadUserDataFromConsole();
 };
