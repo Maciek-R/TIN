@@ -55,6 +55,7 @@ bool Client::InitBroadcastSocket()
 bool Client::SendBroadcastMessage()
 {
 	unsigned char message[5] {1};
+	std::cout << message << "\n";
 	Utils::LoadAddress(message, CLIENT_ADDRESS, 1);
 	if(sendto(mainSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
 	{

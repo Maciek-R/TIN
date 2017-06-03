@@ -3,7 +3,7 @@
 #include <iostream>
 
 TicketServer::TicketServer()
-	: serviceDataBaseManager{"Common/serversdatabase"},PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, opt{true}, serviceInfo{nullptr}
+	: serviceDataBaseManager{"serversdatabase"},PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, opt{true}, serviceInfo{nullptr}
 {
 	CreateMainSocket();
 	BindMainSocket();
