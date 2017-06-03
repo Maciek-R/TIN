@@ -3,11 +3,17 @@
 #include <iostream>
 
 TicketServer::TicketServer()
-	: serviceDataBaseManager{"Common/serversdatabase"},PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{"127.0.0.1"}, opt{true}, serviceInfo{nullptr}
+	: serviceDataBaseManager{"Common/serversdatabase"},PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, opt{true}, serviceInfo{nullptr}
 {
 	CreateMainSocket();
 	BindMainSocket();
 }
+
+TicketServer::~TicketServer()
+{
+	close(mainSocket);
+}
+
 void TicketServer::CreateMainSocket()
 {
 	if((mainSocket = socket(AF_INET, SOCK_DGRAM, 0)) == 0)
@@ -182,7 +188,7 @@ void TicketServer::loadServiceInfo(bool isConfirmed, unsigned char idService)
 bool TicketServer::checkClientInDatabase(unsigned char * data)
 {
 		std::fstream file;
-		file.open("Common/database", std::ios::in);
+		file.open("database", std::ios::in);
 
 		assert(file.good());
 

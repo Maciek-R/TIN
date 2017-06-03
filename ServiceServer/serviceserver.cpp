@@ -10,6 +10,13 @@ ServiceServer::ServiceServer()
 	BindMainSocket();
 	ListenMainSocket();
 }
+
+ServiceServer::~ServiceServer()
+{
+	close(mainSocket);
+}
+
+
 void ServiceServer::CreateMainSocket()
 {
 	if((mainSocket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
@@ -189,18 +196,3 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 
 	return true;
 }
-
-std::string ServiceServer::ToString(unsigned char * buff, int from, int to)
-{
-	std::stringstream ss;
-
-	for(size_t i=from; i<to-1; ++i)
-	{
-		ss << (int) buff[i];
-		ss << ".";
-	}
-	ss << (int) buff[to-1];
-	
-	return ss.str();
-}
-

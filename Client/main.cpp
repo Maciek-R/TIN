@@ -1,5 +1,7 @@
 #include "client.h"
- #include <iostream>
+#include <iostream>
+
+
 
 int main(int argc , char** argv)
 {
@@ -13,9 +15,7 @@ int main(int argc , char** argv)
 	//
 	
 	//logowanie usera
-	
-	
-	
+
 	if(client.GetTicketServerAddress())
 	{
 		if(client.GetTicket())

@@ -45,6 +45,7 @@ private:
 	bool AuthorizeClient(unsigned char *);
 public:
 	ServiceServer();
+	~ServiceServer();
 	void Run();
 	
 };

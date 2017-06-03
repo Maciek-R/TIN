@@ -10,6 +10,8 @@ add_executable(client ${client_SOURCES})
 add_executable(ticketserver ${ticketserver_SOURCES})
 add_executable(serviceserver ${serviceserver_SOURCES})
 
+set(CMAKE_CXX_FLAGS -DBUILD_WLAN)
+
 set(OPENSSL_LIBRARIES
     -L$/usr/lib/x86_64-linux-gnu
     -lssl libssl.a
@@ -20,4 +22,10 @@ target_link_libraries(
 client
 ${OPENSSL_LIBRARIES}
 )
+
+file(COPY "Common/database" DESTINATION "./")
+#add_custom_command(TARGET client POST_BUILD
+#    COMMAND -E COPY "Common/database" "./"
+#)
+#add_custom_command(TARGET client POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "Common/database" $<TARGET_FILE_DIR:client>)
 

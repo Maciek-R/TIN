@@ -19,16 +19,20 @@
 
 #include "../Common/ticket.h"
 #include "../Common/utils.h"
+#include "../Common/network_object.h"
 
-class Client
+class Client : public NetworkObject
 {
 public:
 	Client();
+	~Client();
 	bool GetServiceAddress();
 	bool RunService(int);
 	bool GetTicketServerAddress();
 	bool GetTicket();
 private:
+	static InterfaceType interfaceType;
+
 	const std::string CLIENT_ADDRESS;
 	const int BROADCAST_PORT;
 	const std::string BROADCAST_ADDRESS;
