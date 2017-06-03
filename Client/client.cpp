@@ -353,7 +353,8 @@ void Client::LoadUserDataFromConsole()
 	
     unsigned char hash[20];
 
-    SHA1((unsigned char*)password.c_str(), password.size(), hash);
+
+	SHA1(reinterpret_cast<const unsigned char*>(password.c_str()), password.size(), hash);
 	
 	
 	Utils::InsertStringToCharTable(clientInfo, name, 5, 34);
