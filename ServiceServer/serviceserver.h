@@ -29,7 +29,7 @@ private:
 	std::array<int, 10> clientSockets;
 
 	struct sockaddr_in address;
-	unsigned char buffer[1024];	
+	unsigned char buffer[1024];
 	fd_set readfds;
 
 	std::string ToString(unsigned char*, int from, int to);

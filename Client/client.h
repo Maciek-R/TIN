@@ -33,9 +33,9 @@ private:
 	const std::string CLIENT_ADDRESS;
 	const int BROADCAST_PORT;
 	const std::string BROADCAST_ADDRESS;
-	std::string ServiceAddress;
-	int ServicePort;
-	std::string TicketServerAddress;
+	std::string serviceAddress;
+	int servicePort;
+	std::string ticketServerAddress;
 
 	int broadcastPermission;
 	int mainSocket;

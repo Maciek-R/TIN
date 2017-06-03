@@ -63,8 +63,8 @@ bool Client::ReceiveTicketServerAddress()
 		return false;
 	}
 	
-	TicketServerAddress = Utils::ToString(buffer, 0, 4);
-	std::cout << "TicketServer address is: "<<TicketServerAddress <<"\n";
+	ticketServerAddress = Utils::ToString(buffer, 0, 4);
+	std::cout << "TicketServer address is: "<<ticketServerAddress <<"\n";
 	close(mainSocket);
 	return true;
 }
@@ -77,7 +77,7 @@ bool Client::InitSocketWithTicketServer()
 	}
 	
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr(TicketServerAddress.c_str());
+	address.sin_addr.s_addr = inet_addr(ticketServerAddress.c_str());
 	address.sin_port = htons( BROADCAST_PORT );
 
 	return true;
@@ -119,10 +119,10 @@ bool Client::ReceiveTicket()
 		ticket.SetServicePort(Utils::ToInt(buffer, 9, 13));
 		ticket.SetServiceId(buffer[13]);
 
-		ServiceAddress = Utils::ToString(buffer, 5, 9);
-		ServicePort = Utils::ToInt(buffer, 9, 13);
+		serviceAddress = Utils::ToString(buffer, 5, 9);
+		servicePort = Utils::ToInt(buffer, 9, 13);
 
-		std::cout << "Got Message from TicketServer. Service Address is: "<<ServiceAddress<<" Service Port: "<<ServicePort<<"\n";
+		std::cout << "Got Message from TicketServer. Service Address is: "<<serviceAddress<<" Service Port: "<<servicePort<<"\n";
 		return true;
 	}
 	else if (buffer[0]==0)
@@ -172,8 +172,8 @@ bool Client::SendTcpEcho()
 		return false;
 	}
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr(ServiceAddress.c_str());
-	address.sin_port = htons( ServicePort );
+	address.sin_addr.s_addr = inet_addr(serviceAddress.c_str());
+	address.sin_port = htons( servicePort );
 
 	if(connect(mainSocket, (struct sockaddr *)&address, sizeof address)==-1)
 	{
@@ -225,8 +225,8 @@ bool Client::SendTcpTime()
 		return false;
 	}
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr(ServiceAddress.c_str());
-	address.sin_port = htons( ServicePort );
+	address.sin_addr.s_addr = inet_addr(serviceAddress.c_str());
+	address.sin_port = htons( servicePort );
 
 	if(connect(mainSocket, (struct sockaddr *)&address, sizeof address)==-1)
 	{
