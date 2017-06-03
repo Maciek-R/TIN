@@ -3,22 +3,25 @@
 
 #include <string>
 #include <fstream>
+#include "utils.h"
 
 class ServiceDataBaseManager
 {
 public:
 	ServiceDataBaseManager (std::string filePath);
 	~ServiceDataBaseManager ();
+	
+	bool OpenFileStream();
+	bool CloseFileStream(); 
 	std::string GetNextWord();
+	
+	bool IsServiceInDataBase(int serverName, int serviceName);
 	
 private:
 	std::string filePath;
 	std::fstream fileStream;
-	
-	bool OpenFileStream();
-	bool CloseFileStream(); 
-	
 	char GetNextChar();
+	
 };
 
 #endif // SERVICEDATABASEMANAGER_H

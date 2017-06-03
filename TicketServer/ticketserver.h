@@ -11,7 +11,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/time.h>
-
 #include "../Common/ticket.h"
 #include "../Common/utils.h"
 #include <sstream>
@@ -19,11 +18,13 @@
 #include <array>
 #include <fstream>
 #include <assert.h>
+#include "../Common/ServiceDataBaseManager.h"
 #include "../Common/network_object.h"
 
 class TicketServer : public NetworkObject
 {
 private:
+	ServiceDataBaseManager serviceDataBaseManager;
 	const int PORT;
 	const std::string SERVICE_ADDRESS_1;
 	const std::string TICKET_SERVER_ADDRESS;
