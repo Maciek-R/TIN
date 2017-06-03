@@ -16,28 +16,35 @@
 #include <sstream>
 #include <string>
 #include <array>
+#include "../Common/network_object.h"
 
-class ServiceServer
+class ServiceServer : public NetworkObject
 {
 private:
 	const int SERVICE_ID;
 	const int PORT;
+	const std::string ADDRESS;
+	const int LISTENING_PORT;
 	std::string ClientAddress;
 	bool opt;
 	int addrlen;
 	int sd, max_sd;
 	int mainSocket;
+	int listeningSocket;
 	std::array<int, 10> clientSockets;
 
 	struct sockaddr_in address;
+	sockaddr_in listeningAddress;
 	unsigned char buffer[1024];
 	fd_set readfds;
 
 	std::string ToString(unsigned char*, int from, int to);
 
 	void CreateMainSocket();
+	void CreateListeningSocket();
 	void InitClients();
 	void BindMainSocket();
+	void BindListeningSocket();
 	void ListenMainSocket();
 
 	void AcceptNewConnection();

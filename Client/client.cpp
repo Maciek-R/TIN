@@ -8,7 +8,7 @@ Client::Client()
 {
 		std::cout << CLIENT_ADDRESS << "\n";
 		std::cout << BROADCAST_ADDRESS << "\n";
-		LoadClientInfo();
+		LoadClientInfo(1);
 }
 
 Client::~Client()
@@ -23,6 +23,7 @@ bool Client::GetTicketServerAddress()
 
 	return true;
 }
+
 bool Client::GetTicket()
 {
 	if(!InitSocketWithTicketServer() || !SendRequestForTicket() || !ReceiveTicket())
@@ -52,10 +53,10 @@ bool Client::InitBroadcastSocket()
 
 	return true;
 }
+
 bool Client::SendBroadcastMessage()
 {
 	unsigned char message[5] {1};
-	std::cout << message << "\n";
 	Utils::LoadAddress(message, CLIENT_ADDRESS, 1);
 	if(sendto(mainSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
 	{
@@ -64,6 +65,7 @@ bool Client::SendBroadcastMessage()
 	}
 	return true;
 }
+
 bool Client::ReceiveTicketServerAddress()
 {
 	int addrlen = sizeof(address);
@@ -128,6 +130,7 @@ bool Client::ReceiveTicket()
 		ticket.SetServiceAddress(Utils::ToString(buffer, 5, 9));
 		ticket.SetServicePort(Utils::ToInt(buffer, 9, 13));
 		ticket.SetServiceId(buffer[13]);
+		std::cout << (int)buffer[13] << "\n";
 
 		serviceAddress = Utils::ToString(buffer, 5, 9);
 		servicePort = Utils::ToInt(buffer, 9, 13);
@@ -171,7 +174,6 @@ bool Client::RunService(int numService)
 		case 3: break;
 		case 4: break;
 	}
-	
 
 }
 bool Client::SendTcpEcho()
@@ -277,7 +279,7 @@ bool Client::SendTcpTime()
 	}
 	return true;
 }
-void Client::LoadClientInfo()
+void Client::LoadClientInfo(int serviceID)
 {
 	//unsigned char * mess = new unsigned char[57];	// na razie na zywca (57, bo 4+30+20+1+1 -> dokumentacja)
 	clientInfo[0] = 2;	//zadanie o bilet
@@ -286,8 +288,8 @@ void Client::LoadClientInfo()
 	LoadUserDataFromConsole();
 	
 								//na razie wstawiam tu 1 1, ale to sie bedzie zmieniac
-	clientInfo[55] = 1;				//nazwa serwera
-	clientInfo[56] = 1;				//nazwa uslugi (1 2 3 4) (tcpecho tcpczas udpecho udpczas)
+	clientInfo[55] = 0;//1;				//nazwa serwera
+	clientInfo[56] = serviceID;				//nazwa uslugi (1 2 3 4) (tcpecho tcpczas udpecho udpczas)
 }
 
 void Client::LoadUserDataFromConsole()

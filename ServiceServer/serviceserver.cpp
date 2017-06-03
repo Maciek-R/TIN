@@ -3,7 +3,7 @@
 #include <iostream>
 
 ServiceServer::ServiceServer(int serviceID, int port)
-	: SERVICE_ID{serviceID}, PORT{port}, opt{true}
+	: SERVICE_ID{serviceID}, PORT{port}, ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, LISTENING_PORT{8886}, opt{true}, mainSocket{-1}, listeningSocket{-1}
 {
 	InitClients();
 	CreateMainSocket();
@@ -14,6 +14,7 @@ ServiceServer::ServiceServer(int serviceID, int port)
 ServiceServer::~ServiceServer()
 {
 	close(mainSocket);
+	close(listeningSocket);
 }
 
 
@@ -33,11 +34,13 @@ void ServiceServer::CreateMainSocket()
 	}
 
 }
+
 void ServiceServer::InitClients()
 {
 	for(std::size_t i = 0; i < clientSockets.size(); ++i)
 		clientSockets[i]=0;
 }
+
 void ServiceServer::BindMainSocket()
 {
 	address.sin_family = AF_INET;

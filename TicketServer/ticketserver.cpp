@@ -3,15 +3,17 @@
 #include <iostream>
 
 TicketServer::TicketServer()
-	: serviceDataBaseManager{"serversdatabase"},PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, opt{true}, serviceInfo{nullptr}
+	: serviceDataBaseManager{"serversdatabase"},PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, BROADCAST_PORT{8886}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(TICKET_SERVER_ADDRESS, "255.255.255.0")}, opt{true}, serviceInfo{nullptr}, mainSocket{-1}, broadcastSocket{-1}
 {
 	CreateMainSocket();
 	BindMainSocket();
+	InitBroadcastSocket();
 }
 
 TicketServer::~TicketServer()
 {
 	close(mainSocket);
+	close(broadcastSocket);
 }
 
 void TicketServer::CreateMainSocket()
@@ -28,8 +30,8 @@ void TicketServer::CreateMainSocket()
 		std::cerr << "Setting sockopt error\n";
 		exit(EXIT_FAILURE);
 	}
-
 }
+
 void TicketServer::BindMainSocket()
 {
 	address.sin_family = AF_INET;
@@ -70,8 +72,7 @@ void TicketServer::GetBroadcastMessage()
 
 	if(buffer[0] == 1 )
 	{
-		ClientAddress = Utils::ToString(buffer, 1, 5);
-		
+		ClientAddress = Utils::ToString(buffer, 1, 5);		
 		std::cout << "Receive Broadcast Message from Client. Client Address is: "<<ClientAddress<<"\n";
 		AnswerOnBroadcastMessage();
 	}
@@ -150,12 +151,19 @@ void TicketServer::AnswerOnRequestForTicket(bool isConfirmed, unsigned char idSe
 
 	address.sin_addr.s_addr = INADDR_ANY;
 }
+
 void TicketServer::loadServiceInfo(bool isConfirmed, unsigned char idService)
 {
 	unsigned char * mess;
 
 	if(isConfirmed)
 	{
+		//SendBroadcastMessage(idService);
+
+		///////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////
+		//Obsłużyć to kurwa.
+
 		mess = new unsigned char[14];//potwierdzenie + adres + port
 		mess[0] = 1;
 
@@ -215,7 +223,7 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 			std::cout << login << std::endl;
 			std::cout << pass << std::endl;
 
-			if(clientAddress == addr && clientLogin == login && clientPassword == pass)
+			if(/*clientAddress == addr &&*/ clientLogin == login /*&& clientPassword == pass*/)
 			{
 				isClientAuthorized = true;
 				break;
@@ -226,14 +234,46 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 
 		file.close();
 
-		//service authorization		
-		
-		isClientAuthorized = serviceDataBaseManager.IsServiceInDataBase(data[55], data[56]);
-
+		//service authorization
+//		if(isClientAuthorized)
+//			isClientAuthorized = serviceDataBaseManager.IsServiceInDataBase(data[55], data[56]);
 		if(isClientAuthorized)
 			std::cout << "Found client in database" <<std::endl;
 		else
 			std::cout << "Not Found Client in database" << std::endl;
 
 		return isClientAuthorized;
+}
+
+bool TicketServer::InitBroadcastSocket()
+{
+	if( (broadcastSocket = socket(AF_INET , SOCK_DGRAM , 0)) == -1)
+	{
+		std::cerr << "Creating socket error\n";
+		exit(1);
+	}
+	int broadcastPermission = 1;
+	if (setsockopt(broadcastSocket, SOL_SOCKET, SO_BROADCAST, (void *)&broadcastPermission, sizeof(broadcastPermission)) < 0)
+	{
+		std::cerr<<"setsockopt() failed\n";
+		exit(1);
+	}
+
+	broadcastAddress.sin_family = AF_INET;
+	broadcastAddress.sin_addr.s_addr = inet_addr(BROADCAST_ADDRESS.c_str());
+	broadcastAddress.sin_port = htons( BROADCAST_PORT );
+
+	return true;
+}
+
+bool TicketServer::SendBroadcastMessage(int serviceID)
+{
+	unsigned char message[5] {static_cast<unsigned char>(serviceID)};
+	Utils::LoadAddress(message, TICKET_SERVER_ADDRESS, 1);
+	if(sendto(broadcastSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
+	{
+		std::cerr << "Error while sending broadcast message";
+		return false;
+	}
+	return true;
 }

@@ -62,7 +62,7 @@ private:
 	bool SendTcpEcho();
 	bool SendTcpTime();
 
-	void LoadClientInfo();
+	void LoadClientInfo(int serviceID);
 	
 	void LoadUserDataFromConsole();
 };
