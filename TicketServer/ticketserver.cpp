@@ -3,7 +3,7 @@
 #include <iostream>
 
 TicketServer::TicketServer()
-	: PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{"127.0.0.1"}, opt{true}, serviceInfo{nullptr}
+	: serviceDataBaseManager{"Common/serversdatabase"},PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{"127.0.0.1"}, opt{true}, serviceInfo{nullptr}
 {
 	CreateMainSocket();
 	BindMainSocket();
@@ -192,8 +192,7 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 		
 		for(unsigned int i = 0; i < 20; ++i)
 		{
-				
-				clientPassword += std::to_string((int)data[i + 35]);
+			clientPassword += std::to_string((int)data[i + 35]);
 		}
 		
 		std::string addr;
@@ -220,6 +219,10 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 		}
 
 		file.close();
+
+		//service authorization		
+		
+		isClientAuthorized = serviceDataBaseManager.IsServiceInDataBase(data[55], data[56]);
 
 		if(isClientAuthorized)
 			std::cout << "Found client in database" <<std::endl;

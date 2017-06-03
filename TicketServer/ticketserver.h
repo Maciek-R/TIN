@@ -19,10 +19,12 @@
 #include <array>
 #include <fstream>
 #include <assert.h>
+#include "../Common/ServiceDataBaseManager.h"
 
 class TicketServer
 {
 private:
+	ServiceDataBaseManager serviceDataBaseManager;
 	const int PORT;
 	const std::string SERVICE_ADDRESS_1;
 	const std::string TICKET_SERVER_ADDRESS;
