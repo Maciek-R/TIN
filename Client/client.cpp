@@ -181,39 +181,48 @@ bool Client::SendTcpEcho()
 		return false;
 	}
 	char message[1024];
-	char info[512];
 	std::cout <<"Type Message: ";
-	if(fgets(info, 512, stdin) != NULL)
-	{	
-		info[strlen(info)-1] = 0;
+	std::string info = "Maciek Ty spierdolino!\0";
+
+	std::cin.ignore();
+	std::getline(std::cin, info);
+	std::cout << "Info " << info << "\n";
+	if(info.size() > 1)
+	{
 		int size;
 		unsigned char * buff = ticket.GetAsBuffor(size);
 		
 		for(int i=0; i<size; ++i)// trzeba bedzie to poprawic na ladniej
 			message[i] = buff[i];
-		for(int i=size; i<size + strlen(info); ++i)
+		for(int i=size; i<size + strlen(info.c_str()); ++i)
 			message[i] = info[i-size];
 		
-		message[size + strlen(info)] = '\0';
+		message[size + strlen(info.c_str())] = '\0';
 
-		std::cout << size + strlen(info)<<std::endl;
+		std::cout << size + strlen(info.c_str()) << "\n";
 
-		if(write(mainSocket, message, size + strlen(info)+1) == -1)
+		if(write(mainSocket, message, size + strlen(info.c_str())+1) == -1)
 		{
 			std::cerr << "Sending Echo Message to ServiceServer Error\n";
 			return false;
 		}
 	}
+	else
+	{
+		std::cerr << "Empty message!\n";
+		return false;
+	}
 
 	int bytesRead;
-	if((bytesRead= read(mainSocket, info, 1024))==0)
+	if((bytesRead = read(mainSocket, message, 1024))==0)
 	{
 		std::cerr << "Receiving Echo Message from ServiceServer Error\n";
 		return false;		
 	}
-	else{
-		info[bytesRead] = '\0';
-		printf("Message from ServiceServer: %s\n", info);
+	else
+	{
+		message[bytesRead] = '\0';
+		std::cout << message << "\n";
 	}
 	return true;
 }

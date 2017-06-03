@@ -115,6 +115,7 @@ void TicketServer::AnswerOnBroadcastMessage()
 
 	address.sin_addr.s_addr = INADDR_ANY;
 }
+
 void TicketServer::AnswerOnRequestForTicket(bool isConfirmed, unsigned char idService)
 {
 	address.sin_addr.s_addr = inet_addr(ClientAddress.c_str());

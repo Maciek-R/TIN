@@ -26,7 +26,6 @@ public:
 	Client();
 	bool GetServiceAddress();
 	bool RunService(int);
-
 	bool GetTicketServerAddress();
 	bool GetTicket();
 private:
