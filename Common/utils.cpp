@@ -42,7 +42,7 @@ namespace Utils
 		for(size_t i=from; i<to; ++i)
 		{	if(buff[i] == 0)
 				break;
-			ss << (char) buff[i];
+			ss << (unsigned char) buff[i];
 		}
 		
 		return ss.str();

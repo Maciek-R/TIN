@@ -18,6 +18,7 @@
 #include <string>
 #include <array>
 #include <fstream>
+#include <assert.h>
 
 class TicketServer
 {

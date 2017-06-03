@@ -184,16 +184,18 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 		std::fstream file;
 		file.open("Common/database", std::ios::in);
 
-		if(!file.good())
-		{
-			std::cerr <<"Cannot find database" <<std::endl;
-			return false;
-		}
+		assert(file.good());
 
 		std::string clientAddress = Utils::ToString(data, 1, 5);
 		std::string clientLogin = Utils::ToStr(data, 5, 35);
-		std::string clientPassword = Utils::ToStr(data, 35, 55);
-
+		std::string clientPassword;
+		
+		for(unsigned int i = 0; i < 20; ++i)
+		{
+				
+				clientPassword += std::to_string((int)data[i + 35]);
+		}
+		
 		std::string addr;
 		std::string login;
 		std::string pass;
@@ -208,13 +210,13 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 			std::cout << login << std::endl;
 			std::cout << pass << std::endl;
 
-			if(/*clientAddress == addr && */clientLogin == login /*&& clientPassword == pass*/)
+			if(clientAddress == addr && clientLogin == login && clientPassword == pass)
 			{
 				f = true;
 				break;
 			}
 
-			getline(file, addr);//;
+			getline(file, addr);
 		}
 
 		file.close();
@@ -226,7 +228,5 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 
 
 		return f;
-
-	//	std::cout << line <<std::endl;
 
 }
