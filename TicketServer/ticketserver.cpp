@@ -7,7 +7,7 @@ TicketServer::TicketServer()
 {
 	CreateMainSocket();
 	BindMainSocket();
-	InitBroadcastSocket();
+	InitBroadcastSocket(1);
 }
 
 TicketServer::~TicketServer()
@@ -151,7 +151,7 @@ void TicketServer::loadServiceInfo(bool isClientAuthorized, unsigned char idServ
 	{
 		mess = new unsigned char[46];//potwierdzenie + adres + port
 
-		//SendBroadcastMessage(idService);
+		SendBroadcastMessage(idService);
 
 		///////////////////////////////////////////////////////////////////
 		///////////////////////////////////////////////////////////////////
@@ -262,7 +262,7 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 		return isClientAuthorized;
 }
 
-bool TicketServer::InitBroadcastSocket()
+bool TicketServer::InitBroadcastSocket(int serviceID)
 {
 	if( (broadcastSocket = socket(AF_INET , SOCK_DGRAM , 0)) == -1)
 	{
@@ -278,7 +278,7 @@ bool TicketServer::InitBroadcastSocket()
 
 	broadcastAddress.sin_family = AF_INET;
 	broadcastAddress.sin_addr.s_addr = inet_addr(BROADCAST_ADDRESS.c_str());
-	broadcastAddress.sin_port = htons( BROADCAST_PORT );
+	broadcastAddress.sin_port = htons( PORT + serviceID );
 
 	return true;
 }
@@ -287,7 +287,7 @@ bool TicketServer::SendBroadcastMessage(int serviceID)
 {
 	unsigned char message[5] {static_cast<unsigned char>(serviceID)};
 	Utils::LoadAddress(message, TICKET_SERVER_ADDRESS, 1);
-	if(sendto(broadcastSocket, message, 5, 0, (struct sockaddr *) &address, sizeof(address)) != 5)
+	if(sendto(broadcastSocket, message, 5, 0, (struct sockaddr *) &broadcastAddress, sizeof(broadcastAddress)) != 5)
 	{
 		std::cerr << "Error while sending broadcast message";
 		return false;

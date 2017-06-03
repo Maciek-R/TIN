@@ -48,7 +48,7 @@ private:
 
 	void CreateMainSocket();
 	void BindMainSocket();
-	bool InitBroadcastSocket();
+	bool InitBroadcastSocket(int serviceID);
 
 	void SendMessage(int socket, const char* message) const;
 	void GetBroadcastMessage();
