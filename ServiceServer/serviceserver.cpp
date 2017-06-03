@@ -16,6 +16,7 @@ ServiceServer::~ServiceServer()
 	close(mainSocket);
 }
 
+
 void ServiceServer::CreateMainSocket()
 {
 	if((mainSocket = socket(AF_INET, SOCK_STREAM, 0)) == 0)

@@ -30,6 +30,8 @@ public:
 	bool GetTicketServerAddress();
 	bool GetTicket();
 private:
+	static InterfaceType interfaceType;
+
 	const std::string CLIENT_ADDRESS;
 	const int BROADCAST_PORT;
 	const std::string BROADCAST_ADDRESS;

@@ -5,6 +5,12 @@
 #include <sstream>
 #include <istream>
 
+enum class InterfaceType
+{
+	ETH,
+	WLAN,
+};
+
 namespace Utils
 {
 
@@ -13,6 +19,7 @@ namespace Utils
 	void LoadAddress(unsigned char *, std::string, int);
 	std::string ToStr(unsigned char*, int, int);
 	void InsertStringToCharTable(unsigned char* charTable, std::string newString, int start, int limit);
+	std::string DetectIP(InterfaceType interfaceType);
 	
 };
 
