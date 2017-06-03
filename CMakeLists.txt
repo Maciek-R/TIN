@@ -21,3 +21,5 @@ client
 ${OPENSSL_LIBRARIES}
 )
 
+file(COPY "Common/database" DESTINATION "./")
+

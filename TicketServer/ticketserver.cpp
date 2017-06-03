@@ -188,7 +188,7 @@ void TicketServer::loadServiceInfo(bool isConfirmed, unsigned char idService)
 bool TicketServer::checkClientInDatabase(unsigned char * data)
 {
 		std::fstream file;
-		file.open("Common/database", std::ios::in);
+		file.open("database", std::ios::in);
 
 		assert(file.good());
 

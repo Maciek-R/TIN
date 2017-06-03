@@ -1,5 +1,6 @@
 #include "client.h"
 #include <iostream>
+#include <limits>
 
 Client::Client()
 	: BROADCAST_PORT{8888}, BROADCAST_ADDRESS{"127.0.0.255"}, CLIENT_ADDRESS{"127.0.0.1"}, mainSocket{-1}, bytesRead{-1}, ticket{}
@@ -189,9 +190,9 @@ bool Client::SendTcpEcho()
 	std::cout <<"Type Message: ";
 	std::string info = "Maciek Ty spierdolino!\0";
 
-	std::cin.ignore();
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	std::getline(std::cin, info);
-	std::cout << "Info " << info << "\n";
+
 	if(info.size() > 0)
 	{
 		int size;
