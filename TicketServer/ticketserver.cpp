@@ -199,7 +199,7 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 		std::string login;
 		std::string pass;
 
-		bool f = false;
+		bool isClientAuthorized = false;
 		while (getline(file, addr))//nie ma sprawdzania nazwy serwera oraz nazwy uslugi(baza tez ich nie uwzglednia)
 		{
 			getline(file, login);
@@ -211,7 +211,7 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 
 			if(clientAddress == addr && clientLogin == login && clientPassword == pass)
 			{
-				f = true;
+				isClientAuthorized = true;
 				break;
 			}
 
@@ -220,12 +220,10 @@ bool TicketServer::checkClientInDatabase(unsigned char * data)
 
 		file.close();
 
-		if(f)
+		if(isClientAuthorized)
 			std::cout << "Found client in database" <<std::endl;
 		else
 			std::cout << "Not Found Client in database" << std::endl;
 
-
-		return f;
-
+		return isClientAuthorized;
 }
