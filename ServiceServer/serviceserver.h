@@ -20,6 +20,7 @@
 class ServiceServer
 {
 private:
+	const int SERVICE_ID;
 	const int PORT;
 	std::string ClientAddress;
 	bool opt;
@@ -44,7 +45,7 @@ private:
 	void SetNewSocket(int socket);
 	bool AuthorizeClient(unsigned char *);
 public:
-	ServiceServer();
+	ServiceServer(int serviceID, int port);
 	~ServiceServer();
 	void Run();
 	

@@ -23,6 +23,8 @@ client
 ${OPENSSL_LIBRARIES}
 )
 
+target_link_libraries(serviceserver pthread)
+
 file(COPY "Common/database" DESTINATION "./")
 #add_custom_command(TARGET client POST_BUILD
 #    COMMAND -E COPY "Common/database" "./"

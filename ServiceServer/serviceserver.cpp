@@ -2,8 +2,8 @@
 #include <vector>
 #include <iostream>
 
-ServiceServer::ServiceServer()
-	: PORT{8889}, opt{true}
+ServiceServer::ServiceServer(int serviceID, int port)
+	: SERVICE_ID{serviceID}, PORT{port}, opt{true}
 {
 	InitClients();
 	CreateMainSocket();
@@ -89,6 +89,7 @@ void ServiceServer::Run()
 	
 		if((activity < 0) && (errno!=EINTR))
 		{
+			std::cout << activity << " " << errno << "\n";
 			std::cout << "Error in select\n";
 		}
 		//new Connection
