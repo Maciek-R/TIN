@@ -27,12 +27,11 @@ void ServiceServer::CreateMainSocket()
 	}
 
 	int option = static_cast<int>(opt);
-	if(setsockopt(mainSocket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option)) < 0)
+	if(setsockopt(mainSocket, SOL_SOCKET, SO_BROADCAST, &option, sizeof(option)) < 0)
 	{
 		std::cerr << "Setting sockopt error\n";
 		exit(EXIT_FAILURE);
 	}
-
 }
 
 void ServiceServer::InitClients()
