@@ -107,6 +107,7 @@ bool TicketServer::AuthorizeClient(unsigned char * data)
 
 void TicketServer::AnswerOnBroadcastMessage()
 {
+	std::cout << ClientAddress;
 	address.sin_addr.s_addr = inet_addr(ClientAddress.c_str());
 
 	unsigned char message[4];
@@ -137,6 +138,7 @@ void TicketServer::AnswerOnRequestForTicket(bool isClientAuthorized, unsigned ch
 		if(sendto(mainSocket, serviceInfo, 1, 0, (struct sockaddr *) &address, sizeof(address)) != 1)
 		{
 			std::cerr << "Error";
+
 		}	
 	}
 
