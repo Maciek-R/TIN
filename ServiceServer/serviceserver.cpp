@@ -162,8 +162,9 @@ void ServiceServer::SendEcho(int& socket)
 		else
 		{
 			buffer[bytesRead] = '\0';
+			
+				
 			std::cout << "Message from Client nr " << ":\t" << buffer<<"\n";
-
 			AuthorizeClient(buffer);
 
 			int i=0;//tu trzeba bedzie poprawic bo jest brzydko // taaa....
@@ -194,6 +195,7 @@ void ServiceServer::AcceptNewConnection()
 		exit(EXIT_FAILURE);
 	}
 	std::cout << "New Connection, socket fd is " << newSocket << "\n\tIP: " << inet_ntoa(address.sin_addr) << "\n\tPort: " << ntohs(address.sin_port) << "\n";
+
 	
 	//SendMessage(newSocket, message.c_str());
 	SetNewSocket(newSocket);
@@ -232,7 +234,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 	std::cout <<static_cast<int>(serviceId) <<std::endl;
 	
 	int currentPointer = 14;
-	std::cout << "Validate[s]: ";
+	std::cout << "Validate[s]: \n";
 	while((int)data[currentPointer])
 	{
 		std::cout << (int)(data[currentPointer] - '0');
@@ -242,7 +244,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 	
 	currentPointer = 30;
 	
-	std::cout << "Checksum: ";
+	std::cout << "Checksum: \n";
 	while((int)data[currentPointer])
 	{
 		std::cout << (int)(data[currentPointer]);

@@ -22,7 +22,9 @@ namespace Utils
 	void InsertStringToCharTable(unsigned char* charTable, std::string newString, int start, int limit);
 	std::string DetectIP(InterfaceType interfaceType);
 
-	void InsertNumberToCharTable(unsigned char* charTable ,long number, int star, int limit);
+	void InsertNumberToCharTable(unsigned char* charTable ,long number, int start, int limit);
+	void InsertNumberToCharTableWithTerm(unsigned char* charTable ,long number, int start, int limit);
+	
 	std::string TicketMessageToString(unsigned char* charTable);
 
 	std::string CalculateBroadCast(std::string ip, std::string subnetMask);

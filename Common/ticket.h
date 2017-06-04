@@ -9,6 +9,7 @@ class Ticket
 {
 public:
 	Ticket();
+	Ticket(char *buffer);
 	void SetClientAddress(std::string);
 	void SetServiceAddress(std::string);
 	void SetServicePort(int);
@@ -17,6 +18,7 @@ public:
 	void SetValidateTime(std::string time);
 	void SetCheckSum(std::vector<int> checkSum);
 	
+	unsigned char* Serialize();
 
 private:
 	std::string clientAddress;
@@ -24,6 +26,7 @@ private:
 	int servicePort;
 	char serviceId;
 	std::string validateTime; //in seconds
+	int validTime;
 	std::vector<int> checkSum;
 };
 

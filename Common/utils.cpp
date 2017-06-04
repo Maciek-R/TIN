@@ -94,6 +94,7 @@ namespace Utils
 			*currentChar = numberAsAString[i] - '0';
 			++currentChar;
 		}
+		
 	}
 
 	std::string DetectIP(InterfaceType interfaceType)
@@ -195,5 +196,22 @@ namespace Utils
 		ss >> a;
 
 		return a;
+	}
+	//zawsze 0 na koncu, w ostatecznosci na limicie
+	void InsertNumberToCharTableWithTerm(unsigned char* charTable, long number, int start, int limit)
+	{
+		std::string numberAsAString = std::to_string(number);
+	
+		unsigned char* currentChar = charTable + start;
+		int difference = limit - start;
+		
+		unsigned int i;
+		for(i = 0; (i < numberAsAString.size() && (i < difference)); ++i)
+		{
+			*currentChar = numberAsAString[i] - '0';
+			++currentChar;
+		}
+		
+		charTable[i] = '\0';
 	}
 }
