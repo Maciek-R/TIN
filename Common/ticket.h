@@ -3,13 +3,14 @@
 
 #include <string>
 #include "../Common/utils.h"
+#include <openssl/sha.h>
 #include <vector>
 
 class Ticket
 {
 public:
 	Ticket();
-	Ticket(char *buffer);
+	Ticket(unsigned char *buffer);
 	void SetClientAddress(std::string);
 	void SetServiceAddress(std::string);
 	void SetServicePort(int);
@@ -18,7 +19,10 @@ public:
 	void SetValidateTime(std::string time);
 	void SetCheckSum(std::vector<int> checkSum);
 	
+	void SetValidTime(int validTime);
+	
 	unsigned char* Serialize();
+	void GenerateCheckSum();
 
 private:
 	std::string clientAddress;
@@ -28,6 +32,8 @@ private:
 	std::string validateTime; //in seconds
 	int validTime;
 	std::vector<int> checkSum;
+	
+	std::string GenerateTicketInString();
 };
 
 #endif

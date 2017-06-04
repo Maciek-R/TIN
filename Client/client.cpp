@@ -125,11 +125,17 @@ bool Client::ReceiveTicket()
 
 	if(buffer[0] == 1)
 	{
+		/*
 		ticket = Ticket{};
 		ticket.SetClientAddress(Utils::ToString(buffer, 1, 5));
 		ticket.SetServiceAddress(Utils::ToString(buffer, 5, 9));
 		ticket.SetServicePort(Utils::ToInt(buffer, 9, 13));
 		ticket.SetServiceId(buffer[13]);
+		*/
+		
+		ticket = Ticket{buffer};
+		
+		
 		ticket.SetValidateTime(Utils::ToStr(buffer,14,30));
 		//std::cout << (int)buffer[13] << "\n";
 		

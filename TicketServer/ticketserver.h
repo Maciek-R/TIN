@@ -68,6 +68,7 @@ private:
 	void LoadServiceInfo(bool, unsigned char);
 
 	bool CheckClientInDatabase(unsigned char *);
+	Ticket CreateTicket(unsigned char serviceId);
 public:
 	TicketServer();	
 	~TicketServer();

@@ -163,9 +163,6 @@ void ServiceServer::SendEcho(int& socket)
 		{
 			buffer[bytesRead] = '\0';
 			
-				
-			std::cout << "Message from Client nr " << ":\t" << buffer<<"\n";
-			AuthorizeClient(buffer);
 
 			int i=0;//tu trzeba bedzie poprawic bo jest brzydko // taaa....
 			char message[1024];
@@ -176,6 +173,9 @@ void ServiceServer::SendEcho(int& socket)
 				++i;
 			}
 			std::cout << "\n";
+			
+			std::cout << "Message from Client nr " << ":\t" << buffer<<"\n";
+			AuthorizeClient(buffer);
 
 			if(write(socket, message, i) == -1)
 				std::cerr << "Error while sending message to client\n";

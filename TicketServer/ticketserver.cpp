@@ -167,6 +167,20 @@ void TicketServer::AnswerOnRequestForTicket(bool isClientAuthorized, unsigned ch
 	address.sin_addr.s_addr = INADDR_ANY;
 }
 
+Ticket TicketServer::CreateTicket(unsigned char serviceId)
+{
+	Ticket ticket;
+	
+	ticket.SetClientAddress(ClientAddress);
+	ticket.SetServiceAddress(details.second);
+	ticket.SetServicePort(details.first);
+	ticket.SetServiceId(serviceId);
+	ticket.SetValidTime(10); ////////////////////////// gdzies jest przechowywana wartość?
+	//ticket.
+	
+	return ticket;
+}
+
 void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idService)
 {
 	assert(idService >= 1 && idService <= 4);
@@ -183,7 +197,7 @@ void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idServ
 		std::pair<int, std::string> details = serviceServersDetails[idService][rand()%serviceServersDetails[idService].size()];
 		Utils::LoadAddress(mess, ClientAddress, 1);
 		Utils::LoadAddress(mess, details.second, 5);
-		Utils::InsertNumberToCharTable(mess, details.first, 9, 13);
+		Utils::InsertNumberToCharTable(mess, details.first, 9, 12);
 //		mess[9] = 8;	//port
 //		mess[10] = 8;
 //		mess[11] = 8;
