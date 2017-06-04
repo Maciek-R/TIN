@@ -6,25 +6,32 @@
 int main(int argc , char** argv)
 {
 	Client client; 
-	//tu trzeba bedzie dorobic jakies menu wyboru opcji uslugi, poboru biletu, itp. itd.
 
-	//to jest na razie szkielet w duzym uproszczeniu zeby ogarnac co ma sie dziac krok po kroku
-
-	//
-	//client.GetTicketServerAddress() // komunikat rozgloszeniowy
-	//
-	
-	//logowanie usera
-
-	//if(client.GetTicketServerAddress())
+	int serviceID;
+	while(true)
 	{
-		//if(client.GetTicket())
+		std::cout << "\t\tMENU\n"
+				  << "Enter number to execute corresponding request\n\n"
+				  << "\t1) TCP echo\n"
+				  << "\t2) TCP time\n"
+				  << "\t3) UDP echo\n"
+				  << "\t4) UDP time\n"
+				  << "\t0) Quit\n";
+		std::cin >> serviceID;
+
+		if(serviceID == 0)
 		{
-			client.RunService(2);
+			std::cout << "Exitting\n";
+			break;
 		}
+		else if(serviceID < 0 || serviceID > 4)
+		{
+			std::cout << "Invalid choice\n";
+			continue;
+		}
+
+		client.RunService(serviceID);
 	}
-
-
 	
 	return 0;
 } 
