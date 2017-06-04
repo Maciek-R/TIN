@@ -171,6 +171,7 @@ void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idServ
 {
 	assert(idService >= 1 && idService <= 4);
 	unsigned char * mess;
+	assert(serviceServersDetails[idService].size() > 0);
 
 	if(isClientAuthorized)
 	{
