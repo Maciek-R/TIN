@@ -221,6 +221,14 @@ void ServiceServer::SetNewSocket(int socket)
 
 bool ServiceServer::AuthorizeClient(unsigned char * data)
 {
+	Ticket ticket{data};
+	
+	//std::cout << "clientaddress" <<ticket.clientAddress <<std::endl;
+	//std::cout << "serviceaddress"<<ticket.serviceServer <<std::endl;
+	//std::cout << "serviceport"<<ticket.servicePort <<std::endl;
+	//std::cout << "serviceid"<<ticket.serviceId <<std::endl;
+	
+	/*
 	std::string clientAddress = Utils::ToString(data, 0, 4);
 	std::string serviceServer = Utils::ToString(data, 4, 8);
 	int servicePort = Utils::ToInt(data, 8, 12);
@@ -251,7 +259,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 		++currentPointer;
 	}
 	std::cout <<"\n";
-	
+	*/
 	//tutaj sprawdzanie czy klient uprawniony do uslugi
 
 	return true;

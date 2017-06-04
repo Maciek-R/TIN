@@ -117,7 +117,7 @@ bool Client::ReceiveTicket()
 
 	if(buffer[0] == 1)
 	{
-		ticket = Ticket{buffer};
+		ticket = Ticket{buffer+1};
 
 		serviceAddress = Utils::ToString(buffer, 5, 9);
 		servicePort = Utils::ToInt(buffer, 9, 13);

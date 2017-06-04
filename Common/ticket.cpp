@@ -6,11 +6,11 @@ Ticket::Ticket()
 
 Ticket::Ticket(unsigned char* buffer) ///WAŻNE - UWZGLEDNIAM JAKIS 1 BAJT WIEC PRZESUNIETE
 {
-	SetClientAddress(Utils::ToString(buffer, 1, 5));
-	SetServiceAddress(Utils::ToString(buffer, 5, 9));
-	SetServicePort(Utils::ToInt(buffer, 9, 13));
-	SetServiceId(buffer[13]);
-	SetValidTime(Utils::ToIntLimitedWithZero(buffer, 14, 30));
+	SetClientAddress(Utils::ToString(buffer, 0, 4));
+	SetServiceAddress(Utils::ToString(buffer, 4, 8));
+	SetServicePort(Utils::ToInt(buffer, 8, 12));
+	SetServiceId(buffer[12]);
+	SetValidTime(Utils::ToIntLimitedWithZero(buffer, 13, 29));
 
 	
 	/*
@@ -19,7 +19,7 @@ Ticket::Ticket(unsigned char* buffer) ///WAŻNE - UWZGLEDNIAM JAKIS 1 BAJT WIEC 
 		
 	for(unsigned int i = 0; i < 16; ++i)
 	{
-		checkSum.push_back((int)buffer[30 + i]);
+		checkSum.push_back((int)buffer[29 + i]);
 	}
 	//ticket.SetCheckSum(checkSum);
 	
