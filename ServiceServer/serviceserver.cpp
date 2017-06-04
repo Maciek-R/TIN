@@ -11,7 +11,7 @@ ServiceServer::ServiceServer(int serviceID, int port)
 	BindMainSocket();
 	ListenMainSocket();
 
-	//CreateListeningSocket();
+	CreateBroadcastSocket();
 //	BindListeningSocket();
 }
 
@@ -74,10 +74,6 @@ void ServiceServer::Run()
 {
 	std::cout << "Waiting for connections\n";
 
-	while(true)
-	{
-		GetBroadcastMessage();
-	}
 	while(true)
 	{
 		FD_ZERO(&readfds);
@@ -227,17 +223,8 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 	return true;
 }
 
-void ServiceServer::GetBroadcastMessage()
-{
-	int bytesRead = recvfrom(mainSocket, buffer, 1024, 0, (struct sockaddr *) &address, (socklen_t*)&addrlen);
 
-	if(bytesRead != -1)
-	{
-		std::cout << "something\n";
-	}
-}
-
-void ServiceServer::CreateListeningSocket()
+void ServiceServer::CreateBroadcastSocket()
 {
 	if( (broadcastSocket = socket(AF_INET , SOCK_DGRAM , 0)) == -1)
 	{
@@ -257,9 +244,13 @@ void ServiceServer::CreateListeningSocket()
 
 	unsigned char message[10] {static_cast<unsigned char>(3)};
 	message[1] = SERVICE_ID;
-	Utils::LoadAddress(message, "1.2.3.4", 2);
+	Utils::LoadAddress(message, ADDRESS, 2);
 	Utils::InsertNumberToCharTable(message, PORT, 6, 10);
 
+	for(int i = 0; i < 10; ++i)
+	{
+		std::cout << (int)message[i];
+	}
 	std::cout << "\n";
 	if(sendto(broadcastSocket, message, 10, 0, (struct sockaddr *) &broadcastAddress, sizeof(broadcastAddress)) == -1)
 	{

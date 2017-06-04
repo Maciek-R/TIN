@@ -91,7 +91,17 @@ void TicketServer::GetBroadcastMessage()
 		AnswerOnRequestForTicket(AuthorizeClient(buffer), buffer[56]);
 	
 	}
-	else{
+	else if(buffer[0] == 3)
+	{
+		//Registering service server
+		for(int i = 0; i < bytesRead; ++i)
+		{
+			std::cout << static_cast<int>(buffer[i]);
+		}
+		std::cout << "\n";
+	}
+	else
+	{
 		std::cout << "Unknown Message\n";
 		return;
 	}

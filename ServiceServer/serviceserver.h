@@ -43,16 +43,14 @@ private:
 	std::string ToString(unsigned char*, int from, int to);
 
 	void CreateMainSocket();
-	void CreateListeningSocket();
+	void CreateBroadcastSocket();
 	void InitClients();
 	void BindMainSocket();
-	void BindListeningSocket();
 	void ListenMainSocket();
 
 	void AcceptNewConnection();
 	void SendMessage(int socket, const char* message) const;
 	void SetNewSocket(int socket);
-	void GetBroadcastMessage();
 	bool AuthorizeClient(unsigned char *);
 public:
 	ServiceServer(int serviceID, int port);
