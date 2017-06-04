@@ -222,22 +222,38 @@ void ServiceServer::SetNewSocket(int socket)
 bool ServiceServer::AuthorizeClient(unsigned char * data)
 {
 	Ticket ticket{data};
-	
 	std::string ticketAsString = ticket.GenerateTicketInString();
 	
 	unsigned char hash[16];
 	unsigned char* newCheckSum = SHA1((unsigned char*)(ticketAsString.c_str()), ticketAsString.size(), hash);
-
+	
+	//sign
 	for(unsigned int i = 0; i < 16 ; ++i)
 	{
-		//checkSum.push_back((int)newCheckSum[i]);
 		if((int)newCheckSum[i] != ticket.GetCheckSum()[i])
 		{
 			std::cout << "Sign of ticket is incorrect!\n";
 			return false;
 		}
 	}
-
+	
+	//iservice
+	if(SERVICE_ID != ticket.GetServiceId())
+	{
+		std::cout << "Service id is incorrect!\n";
+		return false;
+	}
+	
+	//timeout
+	if(!ValidateTimeOut(ticket.GetServiceAddress(), ticket.GetValidTime()))
+	{
+		std::cout << "Ticket is invalid! (timeout)\n";
+		return false;
+	}
+	
+	//address
+	
+	
 	return true;
 }
 
@@ -291,4 +307,25 @@ std::string ServiceServer::GetServerTime()
 		+ std::to_string(now->tm_year + 1900)
 		+ "\n";
 	return serializedTime;
+}
+
+bool ServiceServer::ValidateTimeOut(std::string address, time_t timeout)
+{
+	time_t currentTime = time(0);
+	std::cout << "currentTime: " << currentTime << "\n";
+	if(timeouts.count(address) == 0)
+	{
+		timeouts[address] = currentTime + timeout;
+	}
+	else
+	{
+		if(timeouts[address] < currentTime)
+		{
+			//std::cout << "Ticket is invalid! (timeout)\n";
+			timeouts.erase(address);
+			return false;
+		}
+	}
+	
+	return true;
 }

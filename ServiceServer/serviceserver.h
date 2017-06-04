@@ -17,6 +17,7 @@
 #include <string>
 #include <array>
 #include "../Common/network_object.h"
+#include <map>
 
 enum class ServiceType
 {
@@ -47,6 +48,9 @@ private:
 	sockaddr_in broadcastAddress;
 	unsigned char buffer[1024];
 	fd_set readfds;
+	
+	std::map<std::string, long> timeouts;
+	
 
 	std::string ToString(unsigned char*, int from, int to);
 
@@ -64,6 +68,8 @@ private:
 	void SendEcho(int& socket);
 	void SendTime(int& socket);
 	std::string GetServerTime();
+	
+	bool ValidateTimeOut(std::string address, time_t timeout);
 public:
 	ServiceServer(int serviceID, int port);
 	~ServiceServer();
