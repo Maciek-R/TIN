@@ -55,6 +55,8 @@ private:
 public:
 	ServiceServer(int serviceID, int port);
 	~ServiceServer();
+
+	void BroadcastDisconnect();
 	void Run();
 	
 };

@@ -12,11 +12,11 @@ ServiceServer::ServiceServer(int serviceID, int port)
 	ListenMainSocket();
 
 	CreateBroadcastSocket();
-//	BindListeningSocket();
 }
 
 ServiceServer::~ServiceServer()
 {
+	std::cout << "Destroyed\n";
 	close(mainSocket);
 	close(broadcastSocket);
 }
