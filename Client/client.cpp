@@ -102,14 +102,6 @@ bool Client::SendRequestForTicket()
 		return false;
 	}
 
-	/*std::string message = "2" + MY_ADDRESS;
-	unsigned int lenAddr = message.length()+1;
-	if(sendto(mainSocket, message.c_str(), lenAddr, 0, (struct sockaddr *) &address, sizeof(address)) != lenAddr)
-	{
-		std::cerr << "Error while sending request for ticket\n";
-		return false;
-	}*/
-
 	return true;
 }
 
@@ -126,24 +118,13 @@ bool Client::ReceiveTicket()
 	if(buffer[0] == 1)
 	{
 		ticket = Ticket{buffer};
-		/*
-		std::vector<int> checkSum;
-		
-		for(unsigned int i = 0; i < 16; ++i)
-		{
-			checkSum.push_back((int)buffer[30 + i]);
-		}
-		ticket.SetCheckSum(checkSum);
-		
-		std::cout << "CHeck sum: " << checkSum[0] << "\n";
 
 		serviceAddress = Utils::ToString(buffer, 5, 9);
 		servicePort = Utils::ToInt(buffer, 9, 13);
 
 		std::cout << "Got Message from TicketServer. Service Address is: "<<serviceAddress<<" Service Port: "<<servicePort
 					<<"time: " << buffer[14] << buffer[15]<<"\n";
-					
-		*/
+		
 		return true;
 	}
 	else if (buffer[0]==0)
