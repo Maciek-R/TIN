@@ -4,25 +4,43 @@
 Ticket::Ticket()
 {}
 
-Ticket::Ticket(unsigned char* buffer)
+Ticket::Ticket(unsigned char* buffer) ///WAŻNE - UWZGLEDNIAM JAKIS 1 BAJT WIEC PRZESUNIETE
 {
 	SetClientAddress(Utils::ToString(buffer, 1, 5));
 	SetServiceAddress(Utils::ToString(buffer, 5, 9));
 	SetServicePort(Utils::ToInt(buffer, 9, 13));
 	SetServiceId(buffer[13]);
-	
+	SetValidTime(Utils::ToIntLimitedWithZero(buffer, 14, 30));
+
 	
 	/*
 	//ticket.SetValidateTime(Utils::ToStr(buffer,14,30));
-		
-	std::vector<int> checkSum;
+		*/
 		
 	for(unsigned int i = 0; i < 16; ++i)
 	{
 		checkSum.push_back((int)buffer[30 + i]);
 	}
-	ticket.SetCheckSum(checkSum);
-	*/
+	//ticket.SetCheckSum(checkSum);
+	
+	std::cout << "ClientAddress: " << clientAddress <<'\n';
+	std::cout << "ServiceAddress: " << serviceAddress <<'\n';
+	std::cout << "ServicePort: " << servicePort <<'\n';
+	std::cout << "ServiceID: " << serviceId <<'\n';
+	std::cout << "ValidTime: " << validTime <<'\n';
+	
+	std::string sum;
+	
+	for(unsigned int i = 0; i < 16; ++i)
+	{
+		sum += std::to_string(checkSum[i]);
+		sum += " ";
+	}
+	
+	std::cout << "CheckSum: " << sum <<'\n';
+	
+
+
 }
 
 
@@ -87,11 +105,11 @@ unsigned char* Ticket::Serialize()
 	Utils::LoadAddress(result, serviceAddress, 4);
 	Utils::InsertNumberToCharTable(result, servicePort, 8, 11); // check it
 	result[12] = serviceId;
-	Utils::InsertNumberToCharTableWithTerm(result, validTime, 14, 29);
+	Utils::InsertNumberToCharTableWithTerm(result, validTime, 13, 28);
 	
 	for(unsigned int i = 0; i < 16 ; ++i)
 	{
-		result[30+i] = checkSum[i];
+		result[29+i] = checkSum[i];
 	}
 	
 	return result;
@@ -102,29 +120,30 @@ void Ticket::SetValidTime(int validTime)
 	this->validTime = validTime;
 }
 
-void Ticket::GenerateCheckSum()
+void Ticket::GenerateCheckSum() //TODO: seqfault !!!!!
 {
 
 	std::string ticketAsString = GenerateTicketInString();//MessageAsString = Utils::TicketMessageToString(mess);
-		
+		std::cout << "Generating checksum1: \n";
 	unsigned char hash[16];
-	unsigned char* newCheckSum = SHA1(reinterpret_cast<const unsigned char*>(ticketAsString.c_str()), ticketAsString.size(), hash);
+	//unsigned char* newCheckSum = SHA1((unsigned char*)(ticketAsString.c_str()), ticketAsString.size(), hash);
 	std::cout << "Generating checksum: \n";
 	for(unsigned int i = 0; i < 16 ; ++i)
 	{
-		checkSum.push_back((int)newCheckSum[i]);
-		//mess[30+i] = (int)checkSum[i];
-		//std::cout << (int)checkSum[i] << "\n";
+		//checkSum.push_back((int)newCheckSum[i]);
+		checkSum.push_back(1);
 	}
 		
 }
 
 std::string Ticket::GenerateTicketInString()
 {
+	//std::cout << "chujnia1\n";
 	std::string result;
 	result += clientAddress;
 	result += serviceAddress;
 	result += std::to_string(servicePort);
 	result += serviceId;
 	result += std::to_string(validTime);
+	//std::cout << "chujnia2\n";
 }

@@ -28,7 +28,7 @@ private:
 	std::string clientAddress;
 	std::string serviceAddress;
 	int servicePort;
-	char serviceId;
+	int serviceId;
 	std::string validateTime; //in seconds
 	int validTime;
 	std::vector<int> checkSum;

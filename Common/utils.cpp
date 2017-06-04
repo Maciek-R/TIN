@@ -190,6 +190,7 @@ namespace Utils
 			{
 				if((int)buff[i]!=0)
 				ss << (int) buff[i];
+				else break;
 			}
 		
 		int a;

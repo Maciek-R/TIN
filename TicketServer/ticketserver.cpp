@@ -167,7 +167,7 @@ void TicketServer::AnswerOnRequestForTicket(bool isClientAuthorized, unsigned ch
 	address.sin_addr.s_addr = INADDR_ANY;
 }
 
-Ticket TicketServer::CreateTicket(unsigned char serviceId)
+Ticket TicketServer::CreateTicket(unsigned char serviceId, std::pair <int, std::string> details)
 {
 	Ticket ticket;
 	
@@ -175,8 +175,8 @@ Ticket TicketServer::CreateTicket(unsigned char serviceId)
 	ticket.SetServiceAddress(details.second);
 	ticket.SetServicePort(details.first);
 	ticket.SetServiceId(serviceId);
-	ticket.SetValidTime(10); ////////////////////////// gdzies jest przechowywana wartość?
-	//ticket.
+	ticket.SetValidTime(83); //dafuq!!!? przy wartosci 10, cos dziwnego sie dzieje zapisuje jako 0 1
+	ticket.GenerateCheckSum();
 	
 	return ticket;
 }
@@ -195,6 +195,21 @@ void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idServ
 
 		std::cout << serviceServersDetails[idService].size() << "\n";
 		std::pair<int, std::string> details = serviceServersDetails[idService][rand()%serviceServersDetails[idService].size()];
+		
+		
+		
+		Ticket createdTicket = CreateTicket(idService, details);
+		unsigned char* ticketInChar = createdTicket.Serialize();
+		
+		
+		for(size_t i = 0; i < 45; ++i)
+		{
+			mess[i+1] = ticketInChar[i];
+		}
+		
+		
+		/*
+		
 		Utils::LoadAddress(mess, ClientAddress, 1);
 		Utils::LoadAddress(mess, details.second, 5);
 		Utils::InsertNumberToCharTable(mess, details.first, 9, 12);
@@ -222,8 +237,8 @@ void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idServ
 			std::cout << (int)checkSum[i] << "\n";
 		}
 		
-		
-				std::cout << "Ticket: ";
+		*/
+		std::cout << "Ticket: ";
 		for(unsigned int i = 0; i < 46 ; ++i)
 		{
 			std::cout << (int)mess[i] << " ";
