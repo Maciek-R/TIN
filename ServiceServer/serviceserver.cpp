@@ -223,8 +223,20 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 {
 	Ticket ticket{data};
 	
+	std::string ticketAsString = ticket.GenerateTicketInString();
 	
-	//tutaj sprawdzanie czy klient uprawniony do uslugi
+	unsigned char hash[16];
+	unsigned char* newCheckSum = SHA1((unsigned char*)(ticketAsString.c_str()), ticketAsString.size(), hash);
+
+	for(unsigned int i = 0; i < 16 ; ++i)
+	{
+		//checkSum.push_back((int)newCheckSum[i]);
+		if((int)newCheckSum[i] != ticket.GetCheckSum()[i])
+		{
+			std::cout << "Sign of ticket is incorrect!\n";
+			return false;
+		}
+	}
 
 	return true;
 }

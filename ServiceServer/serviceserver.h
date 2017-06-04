@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/time.h>
-
+#include <openssl/sha.h>
 #include "../Common/ticket.h"
 #include <sstream>
 #include <string>

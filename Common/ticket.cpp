@@ -11,17 +11,11 @@ Ticket::Ticket(unsigned char* buffer) ///WAŻNE - UWZGLEDNIAM JAKIS 1 BAJT WIEC 
 	SetServicePort(Utils::ToInt(buffer, 8, 12));
 	SetServiceId(buffer[12]);
 	SetValidTime(Utils::ToIntLimitedWithZero(buffer, 13, 29));
-
-	
-	/*
-	//ticket.SetValidateTime(Utils::ToStr(buffer,14,30));
-		*/
 		
 	for(unsigned int i = 0; i < 16; ++i)
 	{
 		checkSum.push_back((int)buffer[29 + i]);
 	}
-	//ticket.SetCheckSum(checkSum);
 	
 	std::cout << "ClientAddress: " << clientAddress <<'\n';
 	std::cout << "ServiceAddress: " << serviceAddress <<'\n';
@@ -38,9 +32,6 @@ Ticket::Ticket(unsigned char* buffer) ///WAŻNE - UWZGLEDNIAM JAKIS 1 BAJT WIEC 
 	}
 	
 	std::cout << "CheckSum: " << sum <<'\n';
-	
-
-
 }
 
 
@@ -60,7 +51,7 @@ void Ticket::SetServiceId(unsigned char id)
 {
 	serviceId = id;
 }
-unsigned char * Ticket::GetAsBuffor(int &size)
+unsigned char * Ticket::GetAsBuffor(int &size)  //wyjebac!
 {
 	size = 45;
 	unsigned char * mess = new unsigned char[size];	//rozmiar sie zmieni potem
@@ -80,16 +71,9 @@ unsigned char * Ticket::GetAsBuffor(int &size)
 	for(unsigned int i = 0; i < 16 ; ++i)
 	{
 		mess[30+i] = checkSum[i];
-		//std::cout << "chuj: " << checkSum[i] << "\n";
 	}
 
 	return mess;
-}
-
-void Ticket::SetValidateTime(std::string time)
-{
-	validateTime = time;
-	std::cout << "Time set: " << time << "\n";
 }
 
 void Ticket::SetCheckSum(std::vector<int> checkSum)
@@ -120,18 +104,17 @@ void Ticket::SetValidTime(int validTime)
 	this->validTime = validTime;
 }
 
-void Ticket::GenerateCheckSum() //TODO: seqfault !!!!!
+void Ticket::GenerateCheckSum()
 {
 
-	std::string ticketAsString = GenerateTicketInString();//MessageAsString = Utils::TicketMessageToString(mess);
-		std::cout << "Generating checksum1: \n";
+	std::string ticketAsString = GenerateTicketInString();
+
 	unsigned char hash[16];
 	unsigned char* newCheckSum = SHA1((unsigned char*)(ticketAsString.c_str()), ticketAsString.size(), hash);
-	std::cout << "Generating checksum: \n";
+
 	for(unsigned int i = 0; i < 16 ; ++i)
 	{
 		checkSum.push_back((int)newCheckSum[i]);
-		//checkSum.push_back(1);
 	}
 		
 }
@@ -145,4 +128,34 @@ std::string Ticket::GenerateTicketInString()
 	result += serviceId;
 	result += std::to_string(validTime);
 	return result;
+}
+
+std::string Ticket::GetClientAddress()
+{
+	return clientAddress;
+}
+
+std::string Ticket::GetServiceAddress()
+{
+	return serviceAddress;
+}
+
+int Ticket::GetServicePort()
+{
+	return servicePort;
+}
+
+int Ticket::GetServiceId()
+{
+	return serviceId;
+}
+
+std::vector<int> Ticket::GetCheckSum()
+{
+	return checkSum;
+}
+
+int Ticket::GetValidTime()
+{
+	return validTime;
 }
