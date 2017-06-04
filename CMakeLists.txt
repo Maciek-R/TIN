@@ -30,6 +30,10 @@ ticketserver
 ${OPENSSL_LIBRARIES}
 )
 
+target_link_libraries(
+serviceserver
+${OPENSSL_LIBRARIES}
+)
 
 target_link_libraries(serviceserver pthread)
 
