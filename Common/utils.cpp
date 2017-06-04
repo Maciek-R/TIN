@@ -114,12 +114,12 @@ namespace Utils
 				std::string interfaceName{ifa->ifa_name};
 				if(interfaceType == InterfaceType::ETH)
 				{
-					if(interfaceName == "enp9s0" || interfaceName == "eth0")
+					if(interfaceName == "enp9s0" || interfaceName == "eth0" || interfaceName == "enp3s0")
 						ip = std::string{addressBuffer};
 				}
 				else if(interfaceType == InterfaceType::WLAN)
 				{
-					if(interfaceName == "wlp8s0" || interfaceName == "wlan0")
+					if(interfaceName == "wlp8s0" || interfaceName == "wlan0" || interfaceName == "wlp4s0")
 						ip = std::string{addressBuffer};
 				}
 			}
