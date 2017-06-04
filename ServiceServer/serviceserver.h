@@ -63,7 +63,7 @@ private:
 	void AcceptNewConnection();
 	void SendMessage(int socket, const char* message) const;
 	void SetNewSocket(int socket);
-	bool AuthorizeClient(unsigned char *);
+	bool AuthorizeClient(unsigned char *, std::string);
 
 	void SendEcho(int& socket);
 	void SendTime(int& socket);

@@ -175,7 +175,7 @@ void ServiceServer::SendEcho(int& socket)
 			std::cout << "\n";
 			
 			std::cout << "Message from Client nr " << ":\t" << buffer<<"\n";
-			AuthorizeClient(buffer);
+			//AuthorizeClient(buffer);
 
 			if(write(socket, message, i) == -1)
 				std::cerr << "Error while sending message to client\n";
@@ -219,7 +219,7 @@ void ServiceServer::SetNewSocket(int socket)
 	}
 }
 
-bool ServiceServer::AuthorizeClient(unsigned char * data)
+bool ServiceServer::AuthorizeClient(unsigned char * data, std::string realAddress)
 {
 	Ticket ticket{data};
 	std::string ticketAsString = ticket.GenerateTicketInString();
@@ -237,7 +237,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 		}
 	}
 	
-	//iservice
+	//idservice
 	if(SERVICE_ID != ticket.GetServiceId())
 	{
 		std::cout << "Service id is incorrect!\n";
@@ -251,8 +251,11 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 		return false;
 	}
 	
-	//address
-	
+	if(realAddress != ticket.GetServiceAddress())
+	{
+		std::cout << "Addres of service is incorrect!\n";
+		return false;
+	}
 	
 	return true;
 }
