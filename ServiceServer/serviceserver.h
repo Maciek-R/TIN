@@ -18,6 +18,14 @@
 #include <array>
 #include "../Common/network_object.h"
 
+enum class ServiceType
+{
+	TCP_ECHO = 1,
+	TCP_TIME = 2,
+	UDP_ECHO = 3,
+	UDP_TIME = 4,
+};
+
 class ServiceServer : public NetworkObject
 {
 private:
@@ -52,6 +60,10 @@ private:
 	void SendMessage(int socket, const char* message) const;
 	void SetNewSocket(int socket);
 	bool AuthorizeClient(unsigned char *);
+
+	void SendEcho(int& socket);
+	void SendTime(int& socket);
+	std::string GetServerTime();
 public:
 	ServiceServer(int serviceID, int port);
 	~ServiceServer();

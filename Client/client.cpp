@@ -1,6 +1,7 @@
 #include "client.h"
 #include <iostream>
 #include <limits>
+#include <assert.h>
 
 
 Client::Client()
@@ -8,7 +9,6 @@ Client::Client()
 {
 		std::cout << CLIENT_ADDRESS << "\n";
 		std::cout << BROADCAST_ADDRESS << "\n";
-		LoadClientInfo(1);
 }
 
 Client::~Client()
@@ -179,6 +179,10 @@ void Client::ReadInitMessage()
 
 bool Client::RunService(int numService)
 {
+	assert(numService >= 1 && numService <= 4);
+	LoadClientInfo(numService);
+	assert(GetTicketServerAddress());
+	assert(GetTicket());
 	switch(numService)
 	{
 		case 1: SendTcpEcho(); break;
@@ -267,32 +271,36 @@ bool Client::SendTcpTime()
 		return false;
 	}
 
-	char message[1024];
-	std::cout <<"Type Message: ";
-	if(fgets(message, 1024, stdin) != NULL)
-	{	
-		message[strlen(message)-1] = '\0';
-		if(write(mainSocket, message, strlen(message)) == -1)
-		{
-			std::cerr << "Sending Echo Message to ServiceServer Error\n";
-			return false;
-		}
+	std::string message = "TimeRequest";
+	if(write(mainSocket, message.c_str(), message.size()) == -1)
+	{
+		std::cerr << "Sending Echo Message to ServiceServer Error\n";
+		return false;
 	}
 
 	int bytesRead;
-	if((bytesRead= read(mainSocket, message, 1024))==0)
+	char response[1024];
+	if((bytesRead = read(mainSocket, response, 1024)) == 0)
 	{
 		std::cerr << "Receiving Echo Message from ServiceServer Error\n";
 		return false;		
 	}
-	else{
-		message[bytesRead] = '\0';
-		printf("Message from ServiceServer: %s\n", message);
+	else
+	{
+		std::cout << bytesRead << "\n";
+		response[bytesRead] = '\0';
+		std::cout << "Server time: ";
+		for(int i =0 ; i < bytesRead; ++i)
+		{
+			std::cout << response[i];
+		}
+		std::cout <<"\n";
 	}
 	return true;
 }
 void Client::LoadClientInfo(int serviceID)
 {
+	std::cout << "Loaded\n";
 	clientInfo[0] = 2;	//zadanie o bilet
 
 	Utils::LoadAddress(clientInfo, CLIENT_ADDRESS, 1);

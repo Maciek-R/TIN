@@ -10,7 +10,7 @@ TicketServer::TicketServer()
 {
 	CreateMainSocket();
 	BindMainSocket();
-	InitBroadcastSocket(1);
+	//InitBroadcastSocket(1);
 }
 
 TicketServer::~TicketServer()
@@ -114,6 +114,7 @@ void TicketServer::GetBroadcastMessage()
 		}
 		default:
 		{
+			std::cout << (int)buffer[0] << "\n";
 			std::cout << "Unknown Message\n";
 		}
 	}
@@ -121,10 +122,7 @@ void TicketServer::GetBroadcastMessage()
 
 bool TicketServer::AuthorizeClient(unsigned char * data)
 {
-	if (CheckClientInDatabase(data))
-		return true;
-	else
-		return false;
+	return CheckClientInDatabase(data);
 }
 
 void TicketServer::AnswerOnBroadcastMessage()
@@ -145,21 +143,23 @@ void TicketServer::AnswerOnBroadcastMessage()
 
 void TicketServer::AnswerOnRequestForTicket(bool isClientAuthorized, unsigned char idService)
 {
+	std::cout << "Sending ticket\n";
 	address.sin_addr.s_addr = inet_addr(ClientAddress.c_str());
 	LoadServiceInfo(isClientAuthorized, idService);
+	std::cout << "Loaded info\n";
 
 	if(isClientAuthorized)
 	{
 		if(sendto(mainSocket, serviceInfo, 46, 0, (struct sockaddr *) &address, sizeof(address)) != 46)
 		{
-			std::cerr << "Sending ServiceAddress Error";
+			std::cerr << "Sending ServiceAddress Error\n";
 		}	
 	}
 	else
 	{
 		if(sendto(mainSocket, serviceInfo, 1, 0, (struct sockaddr *) &address, sizeof(address)) != 1)
 		{
-			std::cerr << "Error";
+			std::cerr << "Not authorized\n";
 
 		}	
 	}
@@ -178,10 +178,10 @@ void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idServ
 
 		mess[0] = 1;
 
+		std::cout << serviceServersDetails[idService].size() << "\n";
 		std::pair<int, std::string> details = serviceServersDetails[idService][rand()%serviceServersDetails[idService].size()];
 		Utils::LoadAddress(mess, ClientAddress, 1);
 		Utils::LoadAddress(mess, details.second, 5);
-
 		Utils::InsertNumberToCharTable(mess, details.first, 9, 13);
 //		mess[9] = 8;	//port
 //		mess[10] = 8;
@@ -194,7 +194,6 @@ void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idServ
 		std::string validateTime = std::to_string(10);
 		
 		Utils::InsertStringToCharTable(mess, validateTime, 14, 29);
-		
 		
 		//pole kontroli kryptograficznej  - napisz to wszytko w utils
 		std::string ticketMessageAsString = Utils::TicketMessageToString(mess);

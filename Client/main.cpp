@@ -16,11 +16,11 @@ int main(int argc , char** argv)
 	
 	//logowanie usera
 
-	if(client.GetTicketServerAddress())
+	//if(client.GetTicketServerAddress())
 	{
-		if(client.GetTicket())
+		//if(client.GetTicket())
 		{
-			client.RunService(1);
+			client.RunService(2);
 		}
 	}
 

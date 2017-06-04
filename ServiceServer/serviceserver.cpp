@@ -108,41 +108,16 @@ void ServiceServer::Run()
 		{
 			for(std::size_t i = 0; i < clientSockets.size(); ++i)
 			{
-				sd = clientSockets[i];
-				if(FD_ISSET(sd, &readfds))
+				switch(static_cast<ServiceType>(SERVICE_ID))
 				{
-					int bytesRead = read( sd , buffer, 1024);
-					//Somebody disconnected , get his details and print
-					if (bytesRead == 0)
-					{
-						getpeername(sd , (struct sockaddr*)&address , (socklen_t*)&addrlen);
-						std::cout << "Host disconnected\n\tIP: " << inet_ntoa(address.sin_addr)<< "\n\tport: " <<  ntohs(address.sin_port) << '\n';
-
-						close( sd );
-						clientSockets[i] = 0;
-					}
-					//message
-					else
-					{	
-						buffer[bytesRead] = '\0';
-						std::cout << "Message from Client nr " <<  i  << ":\t" << buffer<<"\n";
-
-						AuthorizeClient(buffer);
-
-						int i=0;//tu trzeba bedzie poprawic bo jest brzydko // taaa....
-						char message[1024];
-						while(buffer[i+45]!=0)
-						{
-							std::cout <<buffer[i+45];
-							message[i] = buffer[i+45];
-							++i;
-						}
-
-						if(write(sd, message, i) == -1)
-							std::cerr << "Error while sending message to client\n";
-						else
-							std::cout << "Echo Message send successfully\n";
-					}
+				case ServiceType::TCP_ECHO:
+					SendEcho(clientSockets[i]);
+					break;
+				case ServiceType::TCP_TIME:
+					SendTime(clientSockets[i]);
+					break;
+				default:
+					std::cout << "Unknown service request\n";
 				}
 			}
 		
@@ -150,6 +125,63 @@ void ServiceServer::Run()
 	}
 
 
+}
+
+void ServiceServer::SendTime(int& socket)
+{
+	if(FD_ISSET(socket, &readfds))
+	{
+		std::string time = GetServerTime();
+		std::cout << time.c_str() << "\n";
+		if( write(socket, time.c_str(), time.size()) == -1)
+			std::cerr << "Error while sending time\n";
+		else
+			std::cerr << "Time successfuly sent\n";
+
+		close(socket);
+		socket = 0;
+	}
+}
+
+void ServiceServer::SendEcho(int& socket)
+{
+	if(FD_ISSET(socket, &readfds))
+	{
+		int bytesRead = read( socket , buffer, 1024);
+		//Somebody disconnected , get his details and print
+		if (bytesRead == 0)
+		{
+			getpeername(socket , (struct sockaddr*)&address , (socklen_t*)&addrlen);
+			std::cout << "Host disconnected\n\tIP: " << inet_ntoa(address.sin_addr)<< "\n\tport: " <<  ntohs(address.sin_port) << '\n';
+
+			close( socket );
+			//clientSockets[i] = 0;
+			socket = 0;
+		}
+		//message
+		else
+		{
+			buffer[bytesRead] = '\0';
+			std::cout << "Message from Client nr " << ":\t" << buffer<<"\n";
+
+			AuthorizeClient(buffer);
+
+			int i=0;//tu trzeba bedzie poprawic bo jest brzydko // taaa....
+			char message[1024];
+			while(buffer[i+45]!=0)
+			{
+				std::cout << buffer[i+45];
+				message[i] = buffer[i+45];
+				++i;
+			}
+			std::cout << "\n";
+
+			if(write(socket, message, i) == -1)
+				std::cerr << "Error while sending message to client\n";
+			else
+				std::cout << "Echo Message send successfully\n";
+		}
+	}
 }
 
 void ServiceServer::AcceptNewConnection()
@@ -257,4 +289,20 @@ void ServiceServer::CreateBroadcastSocket()
 		std::cerr << "Error while sending broadcast message " << errno << "\n";
 		exit(1);
 	}
+}
+
+std::string ServiceServer::GetServerTime()
+{
+	time_t currentTime = time(0);
+	struct tm * now = localtime( &currentTime );
+	std::string serializedTime = "";
+	serializedTime +=
+		  (now->tm_hour < 10 ? "0" : "") + std::to_string(now->tm_hour) + ":"
+		+ (now->tm_min < 10 ? "0" : "") + std::to_string(now->tm_min) + ":"
+		+ (now->tm_sec < 10 ? "0" : "") + std::to_string(now->tm_sec) + " "
+		+ (now->tm_mday < 10 ? "0" : "") + std::to_string(now->tm_mday) + "-"
+		+ (now->tm_mon < 10 ? "0" : "") + std::to_string(now->tm_mon + 1) + "-"
+		+ std::to_string(now->tm_year + 1900)
+		+ "\n";
+	return serializedTime;
 }

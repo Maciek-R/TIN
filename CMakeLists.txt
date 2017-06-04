@@ -11,6 +11,7 @@ add_executable(ticketserver ${ticketserver_SOURCES})
 add_executable(serviceserver ${serviceserver_SOURCES})
 
 set(CMAKE_CXX_FLAGS -DBUILD_WLAN)
+set(CMAKE_BUILD_TYPE Debug)
 
 set(OPENSSL_LIBRARIES
     -L$/usr/lib/x86_64-linux-gnu
