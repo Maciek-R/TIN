@@ -72,43 +72,48 @@ void TicketServer::SendMessage(int socket, const char * message) const
 void TicketServer::GetBroadcastMessage()
 {
 	int bytesRead = recvfrom(mainSocket, buffer, 1024, 0, (struct sockaddr *) &address, (socklen_t*)&addrlen);
+	assert(bytesRead > 0);
 
-	if(buffer[0] == 1 )
+	switch(static_cast<RequestType>(buffer[0]))
 	{
-		ClientAddress = Utils::ToString(buffer, 1, 5);		
-		std::cout << "Receive Broadcast Message from Client. Client Address is: "<<ClientAddress<<"\n";
-		AnswerOnBroadcastMessage();
-	}
-	else if(buffer[0] == 2)
-	{
-		ClientAddress = Utils::ToString(buffer, 1, 5);
+		case RequestType::ADDRESS:
+		{
+			ClientAddress = Utils::ToString(buffer, 1, 5);
+			std::cout << "Receive Broadcast Message from Client. Client Address is: "<<ClientAddress<<"\n";
+			AnswerOnBroadcastMessage();
+			break;
+		}
+		case RequestType::TICKET:
+		{
+			ClientAddress = Utils::ToString(buffer, 1, 5);
 
-		std::string login = Utils::ToString(buffer, 5, 35);
-		std::string password = Utils::ToString(buffer, 35, 55);
-		std::string nameServer = Utils::ToString(buffer, 55, 56);
-		std::string numerService = Utils::ToString(buffer, 56, 57); 
+			std::string login = Utils::ToString(buffer, 5, 35);
+			std::string password = Utils::ToString(buffer, 35, 55);
+			std::string nameServer = Utils::ToString(buffer, 55, 56);
+			std::string numerService = Utils::ToString(buffer, 56, 57);
 
-		std::cout << "Receive Request for Ticket from Client. Client Address is: "<<ClientAddress<<" Got " << bytesRead <<" bytes\n";
-			std::cout <<"login: "<<login<<"\npassword: "<<password<<"\nnameServer: "<<nameServer<<"\nnumerService: "<<numerService<<"\n";
+			std::cout << "Receive Request for Ticket from Client. Client Address is: "<<ClientAddress<<" Got " << bytesRead <<" bytes\n";
+				std::cout <<"login: "<<login<<"\npassword: "<<password<<"\nnameServer: "<<nameServer<<"\nnumerService: "<<numerService<<"\n";
 
-		AnswerOnRequestForTicket(AuthorizeClient(buffer), buffer[56]);
-	
-	}
-	else if(buffer[0] == 3)
-	{
-		assert(bytesRead == 10);
-		//Registering service server
+			AnswerOnRequestForTicket(AuthorizeClient(buffer), buffer[56]);
+			break;
+		}
+		case RequestType::REGISTER_SERVICE:
+		{
+			assert(bytesRead == 10);
+			//Registering service server
 
-		int serviceID = buffer[1];
-		std::pair<int, std::string> serviceDetails{Utils::ToInt(buffer, 6, 10), Utils::ToString(buffer,2,6)};
-		std::cout << serviceID << " " << serviceDetails.first << " " << serviceDetails.second << "\n";
+			int serviceID = buffer[1];
+			std::pair<int, std::string> serviceDetails{Utils::ToInt(buffer, 6, 10), Utils::ToString(buffer,2,6)};
+			std::cout << serviceID << " " << serviceDetails.first << " " << serviceDetails.second << "\n";
 
-		serviceServersDetails[serviceID].push_back(serviceDetails);
-	}
-	else
-	{
-		std::cout << "Unknown Message\n";
-		return;
+			serviceServersDetails[serviceID].push_back(serviceDetails);
+			break;
+		}
+		default:
+		{
+			std::cout << "Unknown Message\n";
+		}
 	}
 }
 

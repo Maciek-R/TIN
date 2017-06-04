@@ -24,6 +24,13 @@
 #include <map>
 
 
+enum class RequestType
+{
+	ADDRESS = 1,
+	TICKET = 2,
+	REGISTER_SERVICE = 3,
+};
+
 class TicketServer : public NetworkObject
 {
 private:
