@@ -3,6 +3,7 @@
 
 #include <string>
 #include "../Common/utils.h"
+#include <vector>
 
 class Ticket
 {
@@ -13,8 +14,8 @@ public:
 	void SetServicePort(int);
 	void SetServiceId(unsigned char);
 	unsigned char * GetAsBuffor(int &size);
-	void SetValidateTime(int time);
-	void SetCheckSum(std::string checkSum);
+	void SetValidateTime(std::string time);
+	void SetCheckSum(std::vector<int> checkSum);
 	
 
 private:
@@ -22,8 +23,8 @@ private:
 	std::string serviceAddress;
 	int servicePort;
 	char serviceId;
-	int validateTime; //in seconds
-	std::string checkSum;
+	std::string validateTime; //in seconds
+	std::vector<int> checkSum;
 };
 
 #endif

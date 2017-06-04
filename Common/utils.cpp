@@ -134,25 +134,7 @@ namespace Utils
 	std::string TicketMessageToString(unsigned char* charTable)
 	{
 		std::string result;
-		/*
-		Utils::LoadAddress(mess, ClientAddress, 1);
-		Utils::LoadAddress(mess, SERVICE_ADDRESS_1, 5);
 
-		mess[9] = 8;	//port 
-		mess[10] = 8;
-		mess[11] = 8;
-		mess[12] = 9;
-		mess[13] = idService; //id uslugi
-
-		//czas waznosci
-		//od 14 do 29
-		std::string validateTime = std::to_string(10);
-		
-		Utils::InsertStringToCharTable(mess, validateTime, 14, 29);
-		
-		std::cout << "Ticket: ";
-		for(unsigned int i = 0; i < 46 ; ++i)
-			*/
 		unsigned int i;
 		for(i = 1; i<14; ++i)
 		{
@@ -195,5 +177,21 @@ namespace Utils
 			exit(1);
 		}
 
+	}
+
+	int ToIntLimitedWithZero(unsigned char* buff, int from, int to)
+	{
+		std::stringstream ss;
+
+		for(size_t i=from; i<to; ++i)
+			{
+				if((int)buff[i]!=0)
+				ss << (int) buff[i];
+			}
+		
+		int a;
+		ss >> a;
+
+		return a;
 	}
 }

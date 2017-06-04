@@ -1,4 +1,5 @@
 #include "ticket.h"
+#include <iostream>
 
 Ticket::Ticket()
 {}
@@ -39,17 +40,19 @@ unsigned char * Ticket::GetAsBuffor(int &size)
 	for(unsigned int i = 0; i < 16 ; ++i)
 	{
 		mess[30+i] = checkSum[i];
+		std::cout << "chuj: " << checkSum[i] << "\n";
 	}
 
 	return mess;
 }
 
-void Ticket::SetValidateTime(int time)
+void Ticket::SetValidateTime(std::string time)
 {
 	validateTime = time;
+	std::cout << "Time set: " << time << "\n";
 }
 
-void Ticket::SetCheckSum(std::string checkSum)
+void Ticket::SetCheckSum(std::vector<int> checkSum)
 {
 	this->checkSum = checkSum;
 }

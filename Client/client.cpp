@@ -130,7 +130,18 @@ bool Client::ReceiveTicket()
 		ticket.SetServiceAddress(Utils::ToString(buffer, 5, 9));
 		ticket.SetServicePort(Utils::ToInt(buffer, 9, 13));
 		ticket.SetServiceId(buffer[13]);
-		std::cout << (int)buffer[13] << "\n";
+		ticket.SetValidateTime(Utils::ToStr(buffer,14,30));
+		//std::cout << (int)buffer[13] << "\n";
+		
+		std::vector<int> checkSum;
+		
+		for(unsigned int i = 0; i < 16; ++i)
+		{
+			checkSum.push_back((int)buffer[30 + i]);
+		}
+		ticket.SetCheckSum(checkSum);
+		
+		std::cout << "CHeck sum: " << checkSum[0] << "\n";
 
 		serviceAddress = Utils::ToString(buffer, 5, 9);
 		servicePort = Utils::ToInt(buffer, 9, 13);
