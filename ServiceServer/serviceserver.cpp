@@ -223,43 +223,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 {
 	Ticket ticket{data};
 	
-	//std::cout << "clientaddress" <<ticket.clientAddress <<std::endl;
-	//std::cout << "serviceaddress"<<ticket.serviceServer <<std::endl;
-	//std::cout << "serviceport"<<ticket.servicePort <<std::endl;
-	//std::cout << "serviceid"<<ticket.serviceId <<std::endl;
 	
-	/*
-	std::string clientAddress = Utils::ToString(data, 0, 4);
-	std::string serviceServer = Utils::ToString(data, 4, 8);
-	int servicePort = Utils::ToInt(data, 8, 12);
-	char serviceId = data[12];
-	//czas waznosci
-	//pole krypto
-
-	std::cout <<clientAddress <<std::endl;
-	std::cout <<serviceServer <<std::endl;
-	std::cout <<servicePort <<std::endl;
-	std::cout <<static_cast<int>(serviceId) <<std::endl;
-	
-	int currentPointer = 14;
-	std::cout << "Validate[s]: \n";
-	while((int)data[currentPointer])
-	{
-		std::cout << (int)(data[currentPointer] - '0');
-		++currentPointer;
-	}
-	std::cout <<"\n";
-	
-	currentPointer = 30;
-	
-	std::cout << "Checksum: \n";
-	while((int)data[currentPointer])
-	{
-		std::cout << (int)(data[currentPointer]);
-		++currentPointer;
-	}
-	std::cout <<"\n";
-	*/
 	//tutaj sprawdzanie czy klient uprawniony do uslugi
 
 	return true;
