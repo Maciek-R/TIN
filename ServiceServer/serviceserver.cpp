@@ -3,21 +3,22 @@
 #include <iostream>
 
 
-//class AuthorizeClient;
-
 ServiceServer::ServiceServer(int serviceID, int port)
-	: SERVICE_ID{serviceID}, PORT{port}, ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, LISTENING_PORT{8886}, opt{true}, mainSocket{-1}, listeningSocket{-1}
+	: SERVICE_ID{serviceID}, PORT{port}, ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, BROADCAST_PORT{8888}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(ADDRESS, "255.255.255.0")}, opt{true}, mainSocket{-1}
 {
 	InitClients();
 	CreateMainSocket();
 	BindMainSocket();
 	ListenMainSocket();
+
+	//CreateListeningSocket();
+//	BindListeningSocket();
 }
 
 ServiceServer::~ServiceServer()
 {
 	close(mainSocket);
-	close(listeningSocket);
+	close(broadcastSocket);
 }
 
 
@@ -73,6 +74,10 @@ void ServiceServer::Run()
 {
 	std::cout << "Waiting for connections\n";
 
+	while(true)
+	{
+		GetBroadcastMessage();
+	}
 	while(true)
 	{
 		FD_ZERO(&readfds);
@@ -220,4 +225,45 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 	//tutaj sprawdzanie czy klient uprawniony do uslugi
 
 	return true;
+}
+
+void ServiceServer::GetBroadcastMessage()
+{
+	int bytesRead = recvfrom(mainSocket, buffer, 1024, 0, (struct sockaddr *) &address, (socklen_t*)&addrlen);
+
+	if(bytesRead != -1)
+	{
+		std::cout << "something\n";
+	}
+}
+
+void ServiceServer::CreateListeningSocket()
+{
+	if( (broadcastSocket = socket(AF_INET , SOCK_DGRAM , 0)) == -1)
+	{
+		std::cerr << "Creating socket error\n";
+		exit(1);
+	}
+	int broadcastPermission = 1;
+	if (setsockopt(broadcastSocket, SOL_SOCKET, SO_BROADCAST, (void *)&broadcastPermission, sizeof(broadcastPermission)) < 0)
+	{
+		std::cerr<<"setsockopt() failed\n";
+		exit(1);
+	}
+
+	broadcastAddress.sin_family = AF_INET;
+	broadcastAddress.sin_addr.s_addr = inet_addr(BROADCAST_ADDRESS.c_str());
+	broadcastAddress.sin_port = htons(BROADCAST_PORT);
+
+	unsigned char message[10] {static_cast<unsigned char>(3)};
+	message[1] = SERVICE_ID;
+	Utils::LoadAddress(message, "1.2.3.4", 2);
+	Utils::InsertNumberToCharTable(message, PORT, 6, 10);
+
+	std::cout << "\n";
+	if(sendto(broadcastSocket, message, 10, 0, (struct sockaddr *) &broadcastAddress, sizeof(broadcastAddress)) == -1)
+	{
+		std::cerr << "Error while sending broadcast message " << errno << "\n";
+		exit(1);
+	}
 }

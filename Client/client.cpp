@@ -287,7 +287,7 @@ void Client::LoadClientInfo(int serviceID)
 	Utils::LoadAddress(clientInfo, CLIENT_ADDRESS, 1);
 	LoadUserDataFromConsole();
 								//na razie wstawiam tu 1 1, ale to sie bedzie zmieniac
-	clientInfo[55] = 1;				//nazwa serwera
+	clientInfo[55] = 0;//1;				//nazwa serwera
 	clientInfo[56] = serviceID;				//nazwa uslugi (1 2 3 4) (tcpecho tcpczas udpecho udpczas)
 }
 

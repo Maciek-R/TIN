@@ -24,17 +24,19 @@ private:
 	const int SERVICE_ID;
 	const int PORT;
 	const std::string ADDRESS;
-	const int LISTENING_PORT;
+	const int BROADCAST_PORT;
+	const std::string BROADCAST_ADDRESS;
 	std::string ClientAddress;
 	bool opt;
 	int addrlen;
+	int broadcastAddrlen;
 	int sd, max_sd;
 	int mainSocket;
-	int listeningSocket;
+	int broadcastSocket;
 	std::array<int, 10> clientSockets;
 
 	struct sockaddr_in address;
-	sockaddr_in listeningAddress;
+	sockaddr_in broadcastAddress;
 	unsigned char buffer[1024];
 	fd_set readfds;
 
@@ -50,6 +52,7 @@ private:
 	void AcceptNewConnection();
 	void SendMessage(int socket, const char* message) const;
 	void SetNewSocket(int socket);
+	void GetBroadcastMessage();
 	bool AuthorizeClient(unsigned char *);
 public:
 	ServiceServer(int serviceID, int port);
