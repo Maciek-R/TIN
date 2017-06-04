@@ -146,4 +146,5 @@ std::string Ticket::GenerateTicketInString()
 	result += serviceId;
 	result += std::to_string(validTime);
 	//std::cout << "chujnia2\n";
+	return result;
 }
