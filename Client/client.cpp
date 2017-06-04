@@ -152,7 +152,7 @@ bool Client::ReceiveTicket()
 	}
 	else if (buffer[0]==0)
 	{
-		std::cout << "Got Message from TicketServer. You are not on VIP list!\n";
+		std::cout << "Got Message from TicketServer. You are not authorized!\n";
 		return false;
 	}
 	else
@@ -246,7 +246,7 @@ bool Client::SendTcpEcho()
 	else
 	{
 		message[bytesRead] = '\0';
-		std::cout << message << "\n";
+		std::cout << "Echo: " << message << "\n";
 	}
 	return true;
 }

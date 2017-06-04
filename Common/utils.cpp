@@ -91,6 +91,7 @@ namespace Utils
 		for(i = 0; (i < numberAsAString.size() && (i <= difference)); ++i)
 		{
 			*currentChar = numberAsAString[i] - '0';
+			++currentChar;
 		}
 	}
 

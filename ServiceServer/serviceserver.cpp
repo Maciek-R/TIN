@@ -197,7 +197,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data)
 	std::cout <<clientAddress <<std::endl;
 	std::cout <<serviceServer <<std::endl;
 	std::cout <<servicePort <<std::endl;
-	std::cout <<(int)serviceId <<std::endl;
+	std::cout <<static_cast<int>(serviceId) <<std::endl;
 	
 	int currentPointer = 14;
 	std::cout << "Validate[s]: ";
