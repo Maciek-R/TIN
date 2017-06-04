@@ -103,24 +103,20 @@ void ServiceServer::Run()
 		{
 			AcceptNewConnection();
 		}
-		//message or disconnect
-		//else
+
+		for(std::size_t i = 0; i < clientSockets.size(); ++i)
 		{
-			for(std::size_t i = 0; i < clientSockets.size(); ++i)
+			switch(static_cast<ServiceType>(SERVICE_ID))
 			{
-				switch(static_cast<ServiceType>(SERVICE_ID))
-				{
-				case ServiceType::TCP_ECHO:
-					SendEcho(clientSockets[i]);
-					break;
-				case ServiceType::TCP_TIME:
-					SendTime(clientSockets[i]);
-					break;
-				default:
-					std::cout << "Unknown service request\n";
-				}
+			case ServiceType::TCP_ECHO:
+				SendEcho(clientSockets[i]);
+				break;
+			case ServiceType::TCP_TIME:
+				SendTime(clientSockets[i]);
+				break;
+			default:
+				std::cout << "Unknown service request\n";
 			}
-		
 		}
 	}
 
@@ -147,7 +143,7 @@ void ServiceServer::SendEcho(int& socket)
 {
 	int bytesRead = read( socket , buffer, 1024);
 
-	int i=0;//tu trzeba bedzie poprawic bo jest brzydko // taaa....
+	int i=0;
 	char message[1024];
 	while(buffer[i]!=0)
 	{
@@ -164,7 +160,8 @@ void ServiceServer::SendEcho(int& socket)
 		std::cerr << "Echo error\n";
 	else
 		std::cout << "Echo sent\n";
-			//AuthorizeClient(buffer);
+	close(socket);
+	socket = 0;
 }
 
 void ServiceServer::RespondToConnectionAttempt(int& socket)
@@ -177,7 +174,6 @@ void ServiceServer::RespondToConnectionAttempt(int& socket)
 		std::cout << "Host disconnected\n\tIP: " << inet_ntoa(address.sin_addr)<< "\n\tport: " <<  ntohs(address.sin_port) << '\n';
 
 		close( socket );
-		//clientSockets[i] = 0;
 		socket = 0;
 	}
 	//message

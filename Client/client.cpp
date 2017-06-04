@@ -265,25 +265,11 @@ bool Client::SendTcpEcho()
 }
 bool Client::SendTcpTime()
 {
-	if( (mainSocket = socket(AF_INET , SOCK_STREAM , 0)) == -1) 
-	{
-		std::cerr << "Creating socket error\n";
-		return false;
-	}
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr(serviceAddress.c_str());
-	address.sin_port = htons( servicePort );
-
-	if(connect(mainSocket, (struct sockaddr *)&address, sizeof address)==-1)
-	{
-		std::cerr<<"Connecting to ServiceServer failed\n";
-		return false;
-	}
-
+	ShowTicketToServer();
 	std::string message = "TimeRequest";
 	if(write(mainSocket, message.c_str(), message.size()) == -1)
 	{
-		std::cerr << "Sending Echo Message to ServiceServer Error\n";
+		std::cerr << "Error sending request for TCP time\n";
 		return false;
 	}
 
@@ -291,7 +277,7 @@ bool Client::SendTcpTime()
 	char response[1024];
 	if((bytesRead = read(mainSocket, response, 1024)) == 0)
 	{
-		std::cerr << "Receiving Echo Message from ServiceServer Error\n";
+		std::cerr << "Error receiving TCP time ServiceServer\n";
 		return false;		
 	}
 	else
