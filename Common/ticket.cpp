@@ -51,6 +51,8 @@ void Ticket::SetServiceId(unsigned char id)
 {
 	serviceId = id;
 }
+/*
+<<<<<<< HEAD
 unsigned char * Ticket::GetAsBuffor(int &size)  //wyjebac!
 {
 	size = 45;
@@ -75,6 +77,9 @@ unsigned char * Ticket::GetAsBuffor(int &size)  //wyjebac!
 
 	return mess;
 }
+=======
+>>>>>>> 9c6fa327c07c5e68d833ecdc72c49cc159990f66
+*/
 
 void Ticket::SetCheckSum(std::vector<int> checkSum)
 {
