@@ -262,7 +262,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data, std::string realAddres
 	}
 	
 	//timeout
-	if(!ValidateTimeOut(ticket.GetServiceAddress(), ticket.GetValidTime()))
+	if(!ValidateTimeOut(ticket.GetClientAddress(), ticket.GetValidTime()))
 	{
 		std::cout << "Ticket is invalid! (timeout)\n";
 		return false;
