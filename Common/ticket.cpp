@@ -126,25 +126,23 @@ void Ticket::GenerateCheckSum() //TODO: seqfault !!!!!
 	std::string ticketAsString = GenerateTicketInString();//MessageAsString = Utils::TicketMessageToString(mess);
 		std::cout << "Generating checksum1: \n";
 	unsigned char hash[16];
-	//unsigned char* newCheckSum = SHA1((unsigned char*)(ticketAsString.c_str()), ticketAsString.size(), hash);
+	unsigned char* newCheckSum = SHA1((unsigned char*)(ticketAsString.c_str()), ticketAsString.size(), hash);
 	std::cout << "Generating checksum: \n";
 	for(unsigned int i = 0; i < 16 ; ++i)
 	{
-		//checkSum.push_back((int)newCheckSum[i]);
-		checkSum.push_back(1);
+		checkSum.push_back((int)newCheckSum[i]);
+		//checkSum.push_back(1);
 	}
 		
 }
 
 std::string Ticket::GenerateTicketInString()
 {
-	//std::cout << "chujnia1\n";
 	std::string result;
 	result += clientAddress;
 	result += serviceAddress;
 	result += std::to_string(servicePort);
 	result += serviceId;
 	result += std::to_string(validTime);
-	//std::cout << "chujnia2\n";
 	return result;
 }
