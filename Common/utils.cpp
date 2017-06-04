@@ -44,7 +44,8 @@ namespace Utils
 		std::stringstream ss;
 
 		for(size_t i=from; i<to; ++i)
-		{	if(buff[i] == 0)
+		{
+			if(buff[i] == 0)
 				break;
 			ss << (unsigned char) buff[i];
 		}

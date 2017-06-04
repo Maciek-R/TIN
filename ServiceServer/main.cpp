@@ -16,6 +16,5 @@ int main(int argc , char *argv[])
 	t1.join();
 	t2.join();
 	t3.join();
-	//serviceServer.Run();
 	return 0;
 } 

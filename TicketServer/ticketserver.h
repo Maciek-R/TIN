@@ -21,6 +21,7 @@
 #include "../Common/ServiceDataBaseManager.h"
 #include "../Common/network_object.h"
 #include <openssl/sha.h>
+#include <map>
 
 
 class TicketServer : public NetworkObject
@@ -31,6 +32,7 @@ private:
 	const std::string SERVICE_ADDRESS_1;
 	const std::string TICKET_SERVER_ADDRESS;
 	const std::string BROADCAST_ADDRESS;
+	std::map<int, std::vector<std::pair<int, std::string>>> serviceServersDetails;
 	const int BROADCAST_PORT;
 	std::string ClientAddress;
 	bool opt;
@@ -56,9 +58,9 @@ private:
 	void AnswerOnBroadcastMessage();
 	void AnswerOnRequestForTicket(bool, unsigned char);
 	bool AuthorizeClient(unsigned char *);
-	void loadServiceInfo(bool, unsigned char);
+	void LoadServiceInfo(bool, unsigned char);
 
-	bool checkClientInDatabase(unsigned char *);
+	bool CheckClientInDatabase(unsigned char *);
 public:
 	TicketServer();	
 	~TicketServer();

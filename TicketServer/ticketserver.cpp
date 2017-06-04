@@ -3,7 +3,10 @@
 #include <iostream>
 
 TicketServer::TicketServer()
-	: serviceDataBaseManager{"serversdatabase"},PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, BROADCAST_PORT{8886}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(TICKET_SERVER_ADDRESS, "255.255.255.0")}, opt{true}, serviceInfo{nullptr}, mainSocket{-1}, broadcastSocket{-1}
+	: serviceDataBaseManager{"serversdatabase"},PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)},
+	  BROADCAST_PORT{8886}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(TICKET_SERVER_ADDRESS, "255.255.255.0")},
+	  serviceServersDetails{{1, std::vector<std::pair<int, std::string>>{}}, {2, std::vector<std::pair<int, std::string>>{}}, {3, std::vector<std::pair<int, std::string>>{}}, {4, std::vector<std::pair<int, std::string>>{}}},
+	  opt{true}, serviceInfo{nullptr}, mainSocket{-1}, broadcastSocket{-1}
 {
 	CreateMainSocket();
 	BindMainSocket();
@@ -93,12 +96,14 @@ void TicketServer::GetBroadcastMessage()
 	}
 	else if(buffer[0] == 3)
 	{
+		assert(bytesRead == 10);
 		//Registering service server
-		for(int i = 0; i < bytesRead; ++i)
-		{
-			std::cout << static_cast<int>(buffer[i]);
-		}
-		std::cout << "\n";
+
+		int serviceID = buffer[1];
+		std::pair<int, std::string> serviceDetails{Utils::ToInt(buffer, 6, 10), Utils::ToString(buffer,2,6)};
+		std::cout << serviceID << " " << serviceDetails.first << " " << serviceDetails.second << "\n";
+
+		serviceServersDetails[serviceID].push_back(serviceDetails);
 	}
 	else
 	{
@@ -109,7 +114,7 @@ void TicketServer::GetBroadcastMessage()
 
 bool TicketServer::AuthorizeClient(unsigned char * data)
 {
-	if (checkClientInDatabase(data))
+	if (CheckClientInDatabase(data))
 		return true;
 	else
 		return false;
@@ -134,7 +139,7 @@ void TicketServer::AnswerOnBroadcastMessage()
 void TicketServer::AnswerOnRequestForTicket(bool isClientAuthorized, unsigned char idService)
 {
 	address.sin_addr.s_addr = inet_addr(ClientAddress.c_str());
-	loadServiceInfo(isClientAuthorized, idService);
+	LoadServiceInfo(isClientAuthorized, idService);
 
 	if(isClientAuthorized)
 	{
@@ -155,29 +160,26 @@ void TicketServer::AnswerOnRequestForTicket(bool isClientAuthorized, unsigned ch
 	address.sin_addr.s_addr = INADDR_ANY;
 }
 
-void TicketServer::loadServiceInfo(bool isClientAuthorized, unsigned char idService)
+void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idService)
 {
+	assert(idService >= 1 && idService <= 4);
 	unsigned char * mess;
 
 	if(isClientAuthorized)
 	{
 		mess = new unsigned char[46];//potwierdzenie + adres + port
 
-		SendBroadcastMessage(idService);
-
-		///////////////////////////////////////////////////////////////////
-		///////////////////////////////////////////////////////////////////
-		//Obsłużyć to kurwa.
-
 		mess[0] = 1;
 
+		std::pair<int, std::string> details = serviceServersDetails[idService][rand()%serviceServersDetails[idService].size()];
 		Utils::LoadAddress(mess, ClientAddress, 1);
-		Utils::LoadAddress(mess, SERVICE_ADDRESS_1, 5);
+		Utils::LoadAddress(mess, details.second, 5);
 
-		mess[9] = 8;	//port 
-		mess[10] = 8;
-		mess[11] = 8;
-		mess[12] = 9;
+		Utils::InsertNumberToCharTable(mess, details.first, 9, 13);
+//		mess[9] = 8;	//port
+//		mess[10] = 8;
+//		mess[11] = 8;
+//		mess[12] = 9;
 		mess[13] = idService; //id uslugi
 
 		//czas waznosci
@@ -220,7 +222,7 @@ void TicketServer::loadServiceInfo(bool isClientAuthorized, unsigned char idServ
 	serviceInfo = mess;
 }
 
-bool TicketServer::checkClientInDatabase(unsigned char * data)
+bool TicketServer::CheckClientInDatabase(unsigned char * data)
 {
 		std::fstream file;
 		file.open("database", std::ios::in);
