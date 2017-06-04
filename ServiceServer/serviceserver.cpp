@@ -143,13 +143,12 @@ void ServiceServer::SendEcho(int& socket)
 {
 	int bytesRead = read( socket , buffer, 1024);
 
-	int i=0;
+	int i;
 	char message[1024];
-	while(buffer[i]!=0)
+	for(i = 0; buffer[i]!=0; ++i)
 	{
 		std::cout << buffer[i];
 		message[i] = buffer[i];
-		++i;
 	}
 	message[i] = '\0';
 	std::cout << "\n";
