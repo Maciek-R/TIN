@@ -213,8 +213,8 @@ bool Client::SendTcpEcho()
 
 	if(info.size() > 0)
 	{
-		int size;
-		unsigned char * buff = ticket.GetAsBuffor(size);
+		int size = 45;
+		unsigned char * buff = ticket.Serialize(); //ticket.GetAsBuffor(size);
 		
 		for(int i=0; i<size; ++i)// trzeba bedzie to poprawic na ladniej
 			message[i] = buff[i];
