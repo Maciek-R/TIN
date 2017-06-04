@@ -104,7 +104,7 @@ void ServiceServer::Run()
 			AcceptNewConnection();
 		}
 		//message or disconnect
-		else
+		//else
 		{
 			for(std::size_t i = 0; i < clientSockets.size(); ++i)
 			{
@@ -145,42 +145,63 @@ void ServiceServer::SendTime(int& socket)
 
 void ServiceServer::SendEcho(int& socket)
 {
-	if(FD_ISSET(socket, &readfds))
-	{
-		int bytesRead = read( socket , buffer, 1024);
-		//Somebody disconnected , get his details and print
-		if (bytesRead == 0)
-		{
-			getpeername(socket , (struct sockaddr*)&address , (socklen_t*)&addrlen);
-			std::cout << "Host disconnected\n\tIP: " << inet_ntoa(address.sin_addr)<< "\n\tport: " <<  ntohs(address.sin_port) << '\n';
+	int bytesRead = read( socket , buffer, 1024);
 
-			close( socket );
-			//clientSockets[i] = 0;
-			socket = 0;
+	int i=0;//tu trzeba bedzie poprawic bo jest brzydko // taaa....
+	char message[1024];
+	while(buffer[i]!=0)
+	{
+		std::cout << buffer[i];
+		message[i] = buffer[i];
+		++i;
+	}
+	message[i] = '\0';
+	std::cout << "\n";
+
+	std::cout << "Message from Client nr " << ":\t" << buffer<<"\n";
+
+	if(write(socket, message, strlen(message)) == -1)
+		std::cerr << "Echo error\n";
+	else
+		std::cout << "Echo sent\n";
+			//AuthorizeClient(buffer);
+}
+
+void ServiceServer::RespondToConnectionAttempt(int& socket)
+{
+	int bytesRead = read( socket , buffer, 1024);
+	//Somebody disconnected , get his details and print
+	if (bytesRead == 0)
+	{
+		getpeername(socket , (struct sockaddr*)&address , (socklen_t*)&addrlen);
+		std::cout << "Host disconnected\n\tIP: " << inet_ntoa(address.sin_addr)<< "\n\tport: " <<  ntohs(address.sin_port) << '\n';
+
+		close( socket );
+		//clientSockets[i] = 0;
+		socket = 0;
+	}
+	//message
+	else
+	{
+		buffer[bytesRead] = '\0';
+
+		Ticket ticket{buffer};
+		if(/*Tutaj walidacja*/ ticket.GenerateTicketInString().size() > 0)
+		{
+
+			std::cout << "Client ticket: " << ticket.GenerateTicketInString() << "\n";
+			if(write(socket, "1\0", 4) == -1)
+				std::cerr << "Cannot send a response\n";
+			else
+				std::cout << "Client authorized\n";
 		}
-		//message
 		else
 		{
-			buffer[bytesRead] = '\0';
-			
-
-			int i=0;//tu trzeba bedzie poprawic bo jest brzydko // taaa....
-			char message[1024];
-			while(buffer[i+45]!=0)
-			{
-				std::cout << buffer[i+45];
-				message[i] = buffer[i+45];
-				++i;
-			}
-			std::cout << "\n";
-			
-			std::cout << "Message from Client nr " << ":\t" << buffer<<"\n";
-			AuthorizeClient(buffer);
-
-			if(write(socket, message, i) == -1)
-				std::cerr << "Error while sending message to client\n";
+			std::cout << "Client ticket: " << ticket.GenerateTicketInString() << "\n";
+			if(write(socket, "0\0", 4) == -1)
+				std::cerr << "Cannot send a response\n";
 			else
-				std::cout << "Echo Message send successfully\n";
+				std::cout << "Client not authorized\n";
 		}
 	}
 }
@@ -196,10 +217,11 @@ void ServiceServer::AcceptNewConnection()
 	}
 	std::cout << "New Connection, socket fd is " << newSocket << "\n\tIP: " << inet_ntoa(address.sin_addr) << "\n\tPort: " << ntohs(address.sin_port) << "\n";
 
-	
-	//SendMessage(newSocket, message.c_str());
+
+	RespondToConnectionAttempt(newSocket);
 	SetNewSocket(newSocket);
 }
+
 void ServiceServer::SendMessage(int socket, const char * message) const
 {
 	if(send(socket, message, strlen(message), 0)!= strlen(message))

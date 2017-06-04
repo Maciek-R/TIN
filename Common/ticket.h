@@ -15,7 +15,7 @@ public:
 	void SetServiceAddress(std::string);
 	void SetServicePort(int);
 	void SetServiceId(unsigned char);
-	unsigned char * GetAsBuffor(int &size);
+	//unsigned char * GetAsBuffor(int &size);
 	void SetValidateTime(std::string time);
 	void SetCheckSum(std::vector<int> checkSum);
 	
@@ -24,6 +24,7 @@ public:
 	unsigned char* Serialize();
 	void GenerateCheckSum();
 
+	std::string GenerateTicketInString();
 private:
 	std::string clientAddress;
 	std::string serviceAddress;
@@ -32,8 +33,6 @@ private:
 	std::string validateTime; //in seconds
 	int validTime;
 	std::vector<int> checkSum;
-	
-	std::string GenerateTicketInString();
 };
 
 #endif

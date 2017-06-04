@@ -118,6 +118,7 @@ bool Client::ReceiveTicket()
 	if(buffer[0] == 1)
 	{
 		ticket = Ticket{buffer+1};
+		std::cout << "Ticket " << ticket.GenerateTicketInString() << "\n";
 
 		serviceAddress = Utils::ToString(buffer, 5, 9);
 		servicePort = Utils::ToInt(buffer, 9, 13);
@@ -169,12 +170,13 @@ bool Client::RunService(int numService)
 	}
 
 }
-bool Client::SendTcpEcho()
+
+void Client::ShowTicketToServer()
 {
-	if( (mainSocket = socket(AF_INET , SOCK_STREAM , 0)) == -1) 
+	if( (mainSocket = socket(AF_INET , SOCK_STREAM , 0)) == -1)
 	{
 		std::cerr << "Creating socket error\n";
-		return false;
+		std::terminate();
 	}
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = inet_addr(serviceAddress.c_str());
@@ -183,8 +185,46 @@ bool Client::SendTcpEcho()
 	if(connect(mainSocket, (struct sockaddr *)&address, sizeof address)==-1)
 	{
 		std::cerr<<"Connecting to ServiceServer failed\n";
-		return false;
+		std::terminate();
 	}
+
+	char message[1024];
+	int size = 45;
+	unsigned char * buff = ticket.Serialize();
+
+	for(int i=0; i<size; ++i)
+		message[i] = buff[i];
+
+	message[size ] = '\0';
+
+	std::cout << size  << "\n";
+
+	if(write(mainSocket, message, size +1) == -1)
+	{
+		std::cerr << "Sending Ticket to ServiceServer Error\n";
+		std::terminate();
+	}
+	else
+	{
+		std::cout << "Ticket sent\n";
+	}
+
+	int bytesRead;
+	if((bytesRead = read(mainSocket, message, 1024))==0)
+	{
+		std::cerr << "Authorization Result Error\n";
+		std::terminate();
+	}
+	else
+	{
+		message[bytesRead] = '\0';
+		std::cout << "Authorization verdict: " << message << "\n";
+	}
+}
+
+bool Client::SendTcpEcho()
+{
+	ShowTicketToServer();
 	char message[1024];
 	std::cout <<"Type Message: ";
 
@@ -194,22 +234,14 @@ bool Client::SendTcpEcho()
 
 	if(info.size() > 0)
 	{
-		int size = 45;
-		unsigned char * buff = ticket.Serialize(); //ticket.GetAsBuffor(size);
-		
-		for(int i=0; i<size; ++i)// trzeba bedzie to poprawic na ladniej
-			message[i] = buff[i];
-		for(int i=size; i<size + strlen(info.c_str()); ++i)
-			message[i] = info[i-size];
-		
-		message[size + strlen(info.c_str())] = '\0';
-
-		std::cout << size + strlen(info.c_str()) << "\n";
-
-		if(write(mainSocket, message, size + strlen(info.c_str())+1) == -1)
+		if(write(mainSocket, info.c_str(), info.size() +1) == -1)
 		{
-			std::cerr << "Sending Echo Message to ServiceServer Error\n";
-			return false;
+			std::cerr << "Sending Ticket to ServiceServer Error\n";
+			std::terminate();
+		}
+		else
+		{
+			std::cout << "Echo message sent\n";
 		}
 	}
 	else
@@ -218,17 +250,17 @@ bool Client::SendTcpEcho()
 		return false;
 	}
 
-	int bytesRead;
 	if((bytesRead = read(mainSocket, message, 1024))==0)
 	{
-		std::cerr << "Receiving Echo Message from ServiceServer Error\n";
-		return false;		
+		std::cerr << "Cannot Receive Echo\n";
+		std::terminate();
 	}
 	else
 	{
 		message[bytesRead] = '\0';
 		std::cout << "Echo: " << message << "\n";
 	}
+
 	return true;
 }
 bool Client::SendTcpTime()
@@ -278,13 +310,13 @@ bool Client::SendTcpTime()
 void Client::LoadClientInfo(int serviceID)
 {
 	std::cout << "Loaded\n";
-	clientInfo[0] = 2;	//zadanie o bilet
+	clientInfo[0] = 2;	//ticket request
 
 	Utils::LoadAddress(clientInfo, CLIENT_ADDRESS, 1);
 	LoadUserDataFromConsole();
-								//na razie wstawiam tu 1 1, ale to sie bedzie zmieniac
-	clientInfo[55] = 0;//1;				//nazwa serwera
-	clientInfo[56] = serviceID;				//nazwa uslugi (1 2 3 4) (tcpecho tcpczas udpecho udpczas)
+
+	clientInfo[55] = 0;//It was supposed to be server name but it was idiotic idea
+	clientInfo[56] = serviceID;
 }
 
 void Client::LoadUserDataFromConsole()

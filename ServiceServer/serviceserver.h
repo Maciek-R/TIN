@@ -57,6 +57,7 @@ private:
 	void ListenMainSocket();
 
 	void AcceptNewConnection();
+	void RespondToConnectionAttempt(int& socket);
 	void SendMessage(int socket, const char* message) const;
 	void SetNewSocket(int socket);
 	bool AuthorizeClient(unsigned char *);

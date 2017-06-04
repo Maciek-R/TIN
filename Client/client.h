@@ -55,6 +55,8 @@ private:
 	bool SendBroadcastMessage();
 	bool ReceiveTicketServerAddress();
 
+	void ShowTicketToServer();
+
 	bool InitSocketWithTicketServer();
 	bool SendRequestForTicket();
 	bool ReceiveTicket();
