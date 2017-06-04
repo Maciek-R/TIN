@@ -78,6 +78,7 @@ void TicketServer::GetBroadcastMessage()
 	{
 		case RequestType::ADDRESS:
 		{
+			assert(bytesRead == 5);
 			ClientAddress = Utils::ToString(buffer, 1, 5);
 			std::cout << "Receive Broadcast Message from Client. Client Address is: "<<ClientAddress<<"\n";
 			AnswerOnBroadcastMessage();
@@ -85,6 +86,8 @@ void TicketServer::GetBroadcastMessage()
 		}
 		case RequestType::TICKET:
 		{
+			assert(bytesRead == 57);
+
 			ClientAddress = Utils::ToString(buffer, 1, 5);
 
 			std::string login = Utils::ToString(buffer, 5, 35);
@@ -101,7 +104,6 @@ void TicketServer::GetBroadcastMessage()
 		case RequestType::REGISTER_SERVICE:
 		{
 			assert(bytesRead == 10);
-			//Registering service server
 
 			int serviceID = buffer[1];
 			std::pair<int, std::string> serviceDetails{Utils::ToInt(buffer, 6, 10), Utils::ToString(buffer,2,6)};
