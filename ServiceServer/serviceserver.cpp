@@ -276,6 +276,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data, std::string realAddres
 		}
 	}
 	
+	std::cout << "Got request for " << ticket.GetServiceId()  << ". Can handle " << SERVICE_ID << ". My port: " << PORT << "\n";
 	//idservice
 	if(SERVICE_ID != ticket.GetServiceId())
 	{

@@ -5,7 +5,9 @@
 
 
 Client::Client()
-	: CLIENT_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, BROADCAST_PORT{8888}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(CLIENT_ADDRESS, "255.255.255.0")}, mainSocket{-1}, bytesRead{-1},
+	: CLIENT_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, BROADCAST_PORT{8888}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(CLIENT_ADDRESS, "255.255.255.0")},
+	  serviceAddresses{ {1, ""}, {2, ""} , {3, ""}, {4, ""}}, servicePorts{ {1, -1}, {1, -1}, {1, -1}, {1, -1}},
+	  mainSocket{-1}, bytesRead{-1},
 	  tickets{ {1, Ticket{}}, {2, Ticket{}}, {3, Ticket{}}, {4, Ticket{}} }
 {
 		std::cout << CLIENT_ADDRESS << "\n";
@@ -123,10 +125,10 @@ bool Client::ReceiveTicket()
 		tickets[newTicket.GetServiceId()] = newTicket;
 		std::cout << "Ticket " << newTicket.GenerateTicketInString() << "\n";
 
-		serviceAddress = Utils::ToString(buffer, 5, 9);
-		servicePort = Utils::ToInt(buffer, 9, 13);
+		serviceAddresses[newTicket.GetServiceId()] = Utils::ToString(buffer, 5, 9);
+		servicePorts[newTicket.GetServiceId()] = Utils::ToInt(buffer, 9, 13);
 
-		std::cout << "Got Message from TicketServer. Service Address is: "<<serviceAddress<<" Service Port: "<<servicePort
+		std::cout << "Got Message from TicketServer. Service Address is: "<<serviceAddresses[newTicket.GetServiceId()]<<" Service Port: "<< servicePorts[newTicket.GetServiceId()]
 					<<"time: " << buffer[14] << buffer[15]<<"\n";
 		
 		return true;
@@ -185,8 +187,8 @@ bool Client::ShowTicketToServer(int serviceID)
 		std::terminate();
 	}
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr(serviceAddress.c_str());
-	address.sin_port = htons( servicePort );
+	address.sin_addr.s_addr = inet_addr(serviceAddresses[serviceID].c_str());
+	address.sin_port = htons( servicePorts[serviceID] );
 
 	if(connect(mainSocket, (struct sockaddr *)&address, sizeof address)==-1)
 	{

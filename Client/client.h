@@ -38,8 +38,8 @@ private:
 	const std::string CLIENT_ADDRESS;
 	const int BROADCAST_PORT;
 	const std::string BROADCAST_ADDRESS;
-	std::string serviceAddress;
-	int servicePort;
+	std::map<int, std::string> serviceAddresses;
+	std::map<int, int> servicePorts;
 	std::string ticketServerAddress;
 
 	int broadcastPermission;
