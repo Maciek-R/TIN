@@ -296,7 +296,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data, std::string realAddres
 	}
 	
 	//realAddress = "127.0.0.1";
-	if(realAddress != ticket.GetServiceAddress())
+	if(realAddress != ticket.GetClientAddress())
 	{
 		std::cout << "Addres of service is incorrect!\n";
 		return false;
@@ -340,6 +340,8 @@ void ServiceServer::CreateBroadcastSocket()
 		std::cerr << "Error while sending broadcast message " << errno << "\n";
 		exit(1);
 	}
+
+	close(broadcastSocket);
 }
 
 std::string ServiceServer::GetServerTime()
