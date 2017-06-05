@@ -63,12 +63,14 @@ private:
 
 	bool AcceptNewConnection();
 	bool RespondToConnectionAttempt(int& socket);
+	bool UdpRequestProcessing(int sock);
 	void SendMessage(int socket, const char* message) const;
 	void SetNewSocket(int socket);
 	bool AuthorizeClient(unsigned char *, std::string);
 
-	void SendEcho(int& socket);
-	void SendTime(int& socket);
+	void SendTcpEcho(int& socket);
+	void SendTcpTime(int& socket);
+	//void SendUdpEcho
 	std::string GetServerTime();
 	
 	bool ValidateTimeOut(std::string address, time_t timeout);

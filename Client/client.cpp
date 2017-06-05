@@ -179,7 +179,7 @@ bool Client::RunService(int numService)
 	{
 		case 1: SendTcpEcho(); break;
 		case 2: SendTcpTime(); break;
-		case 3: break;
+		case 3: SendUdpEcho(); break;
 		case 4: break;
 	}
 
@@ -187,66 +187,121 @@ bool Client::RunService(int numService)
 
 bool Client::ShowTicketToServer(int serviceID)
 {
-	if( (mainSocket = socket(AF_INET , SOCK_STREAM , 0)) == -1)
+	if(serviceID == 1 || serviceID == 2)
 	{
-		std::cerr << "Creating socket error\n";
-		std::terminate();
-	}
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = inet_addr(serviceAddresses[serviceID].c_str());
-	address.sin_port = htons( servicePorts[serviceID] );
-
-	if(connect(mainSocket, (struct sockaddr *)&address, sizeof address)==-1)
-	{
-		std::cerr<<"Connecting to ServiceServer failed\n";
-		std::terminate();
-	}
-
-	char message[1024];
-	int size = 45;
-	unsigned char buff[1024];
-	tickets[serviceID].Serialize(buff);
-
-	std::cout << "Requesting service: " << serviceID << " " << tickets[serviceID].GetServiceId() << "\n";
-
-	buff[size] = '\0';
-
-	std::cout << size  << "\n";
-
-	unsigned char encryptedTicket[1024];
-	AES_encrypt(buff, encryptedTicket, &encryptionKey);
-
-	if(write(mainSocket, /*message*/encryptedTicket, size +1) == -1)
-	{
-		std::cerr << "Sending Ticket to ServiceServer Error\n";
-		std::terminate();
-	}
-	else
-	{
-		std::cout << "Ticket sent\n";
-	}
-
-	int bytesRead;
-	if((bytesRead = read(mainSocket, message, 1024))==0)
-	{
-		std::cerr << "Authorization Result Error\n";
-		std::terminate();
-	}
-	else
-	{
-		message[bytesRead] = '\0';
-		std::cout << "Authorization verdict: " << message[0] << "\n";
-		if( message[0] == '0')
+		if( (mainSocket = socket(AF_INET , SOCK_STREAM/*SOCK_DGRAM*/ , 0)) == -1)
 		{
-			std::cout << "Ticket revoked\n";
-			return false;
+			std::cerr << "Creating socket error\n";
+			std::terminate();
+		}
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = inet_addr(serviceAddresses[serviceID].c_str());
+		address.sin_port = htons( servicePorts[serviceID] );
+
+		if(connect(mainSocket, (struct sockaddr *)&address, sizeof(address))==-1)
+		{
+			std::cerr<<"Connecting to ServiceServer failed\n";
+			std::terminate();
+		}
+
+		char message[1024];
+		int size = 45;
+		unsigned char buff[1024];
+		tickets[serviceID].Serialize(buff);
+
+		std::cout << "Requesting service: " << serviceID << " " << tickets[serviceID].GetServiceId() << "\n";
+
+		buff[size] = '\0';
+
+		std::cout << size  << "\n";
+
+		unsigned char encryptedTicket[1024];
+		AES_encrypt(buff, encryptedTicket, &encryptionKey);
+
+		if(write(mainSocket, /*buff*/encryptedTicket, size +1) == -1)
+		{
+			std::cerr << "Sending Ticket to ServiceServer Error\n";
+			std::terminate();
 		}
 		else
 		{
-			std::cout << "Ticket accepted\n";
+			std::cout << "Ticket sent\n";
 		}
+
+		int bytesRead;
+		if((bytesRead = read(mainSocket, message, 1024))==0)
+		{
+			std::cerr << "Authorization Result Error\n";
+			std::terminate();
+		}
+		else
+		{
+			message[bytesRead] = '\0';
+			std::cout << "Authorization verdict: " << message[0] << "\n";
+			if( message[0] == '0')
+			{
+				std::cout << "Ticket revoked\n";
+				return false;
+			}
+			else
+			{
+				std::cout << "Ticket accepted\n";
+			}
+		}
+		return true;
 	}
-	return true;
+	else
+	{
+		std::cout << "Sending message\n";
+		int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+		if(sock == 0)
+		{
+			std::cout << "socket failed with error: \n";
+			return 1;
+		}
+
+		sockaddr_in dest;
+		dest.sin_family = AF_INET;
+		dest.sin_addr.s_addr = inet_addr(serviceAddresses[serviceID].c_str());
+		dest.sin_port = htons(servicePorts[serviceID]);
+
+		int size = 45;
+		unsigned char buff[1024];
+		tickets[serviceID].Serialize(buff);
+
+		std::cout << "Requesting service: " << serviceID << " " << tickets[serviceID].GetServiceId() << "\n";
+
+		buff[size] = '\0';
+
+		std::cout << size  << "\n";
+
+		unsigned char encryptedTicket[1024];
+		AES_encrypt(buff, encryptedTicket, &encryptionKey);
+		Utils::sendudp(encryptedTicket, 1024, dest, sock);
+
+		sockaddr_in RecvAddr;
+		int recvaddrlen = sizeof(RecvAddr);
+
+		Utils::recvudp(buff, sock, 2, RecvAddr, recvaddrlen);
+		std::cout << "Authorization verdict: " << buff[0] << "\n";
+
+		close(sock);
+		return buff[0] != '0';
+
+	}
+}
+
+bool Client::SendUdpEcho()
+{
+	const int serviceID = 3;
+	while(!ShowTicketToServer(serviceID))
+	{
+		std::cout << "Cannot continue sending echo\n";
+		LoadClientInfo(serviceID);
+		assert(GetTicketServerAddress());
+		assert(GetTicket());
+	}
 }
 
 bool Client::SendTcpEcho()

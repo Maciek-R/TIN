@@ -7,9 +7,12 @@ ServiceServer::ServiceServer(int serviceID, int port)
 	: SERVICE_ID{serviceID}, PORT{port}, ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, BROADCAST_PORT{8888}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(ADDRESS, "255.255.255.0")}, opt{true}, mainSocket{-1}
 {
 	InitClients();
-	CreateMainSocket();
-	BindMainSocket();
-	ListenMainSocket();
+	if(SERVICE_ID == 1 || SERVICE_ID == 2)
+	{
+		CreateMainSocket();
+		BindMainSocket();
+		ListenMainSocket();
+	}
 
 	CreateBroadcastSocket();
 
@@ -27,10 +30,21 @@ ServiceServer::~ServiceServer()
 
 void ServiceServer::CreateMainSocket()
 {
-	if((mainSocket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+	if(SERVICE_ID == 1 || SERVICE_ID == 2)
 	{
-		std::cout << "Creating Server socket error\n";
-		exit(EXIT_FAILURE);
+		if((mainSocket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+		{
+			std::cout << "Creating Server socket error\n";
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		if((mainSocket = socket(AF_INET, SOCK_DGRAM, 0)) == 0)
+		{
+			std::cout << "Creating Server socket error\n";
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	int option = static_cast<int>(opt);
@@ -51,7 +65,7 @@ void ServiceServer::BindMainSocket()
 {
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons(PORT);	
+	address.sin_port = htons(PORT);
 
 
 	if(bind(mainSocket, (struct sockaddr *)&address, sizeof(address)) < 0)
@@ -73,10 +87,66 @@ void ServiceServer::ListenMainSocket()
 	std::cout << "Listening on port " << PORT << '\n';
 }
 
+bool ServiceServer::UdpRequestProcessing(int sock)
+{
+	//sockaddr_in clientAddr;
+	//int clientAddrLen = sizeof(clientAddr);
+	addrlen = sizeof(address);
+
+	unsigned char message[1024];
+	int bytesRead = Utils::recvudp(message, sock, 100, address, addrlen);
+	if(bytesRead > 0)
+	{
+		unsigned char decryptedTicket[1024];
+		AES_decrypt(message, decryptedTicket, &decryptionKey);
+		Ticket ticket{decryptedTicket};
+		std::cout << "Ticket decrypted\n";
+
+		std::cout << "Received message from the client: " << Ticket{decryptedTicket}.GenerateTicketInString() << "\n";
+		unsigned char response[1];
+		if(AuthorizeClient(decryptedTicket, inet_ntoa(address.sin_addr)))
+		{
+			response[0] = '1';
+			std::cout << "Client authorized\n";
+			Utils::sendudp(response, 2, address, sock);
+			return true;
+		}
+		else
+		{
+			response[0] = '0';
+			std::cout << "Client not authorized\n";
+			Utils::sendudp(response, 2, address, sock);
+			return false;
+		}
+
+	}
+}
+
 void ServiceServer::Run()
 {
 	std::cout << "Waiting for connections\n";
 
+	if(SERVICE_ID == 3 || SERVICE_ID == 4)
+	{
+		int socket = Utils::udpsock(PORT, INADDR_ANY);
+		std::cout << "Waiting for datagram on port: " << PORT << "\n";
+
+		while(true)
+		{
+			if(UdpRequestProcessing(socket))
+			{
+				if(SERVICE_ID == 3)
+				{
+
+				}
+				else
+				{
+
+				}
+			}
+		}
+	}
+	else
 	while(true)
 	{
 		FD_ZERO(&readfds);
@@ -101,6 +171,8 @@ void ServiceServer::Run()
 			std::cout << activity << " " << errno << "\n";
 			std::cout << "Error in select\n";
 		}
+
+
 		//new Connection
 		if(FD_ISSET(mainSocket, &readfds))
 		{
@@ -113,10 +185,10 @@ void ServiceServer::Run()
 			switch(static_cast<ServiceType>(SERVICE_ID))
 			{
 			case ServiceType::TCP_ECHO:
-				SendEcho(clientSockets[i]);
+				SendTcpEcho(clientSockets[i]);
 				break;
 			case ServiceType::TCP_TIME:
-				SendTime(clientSockets[i]);
+				SendTcpTime(clientSockets[i]);
 				break;
 			default:
 				std::cout << "Unknown service request\n";
@@ -127,7 +199,7 @@ void ServiceServer::Run()
 
 }
 
-void ServiceServer::SendTime(int& socket)
+void ServiceServer::SendTcpTime(int& socket)
 {
 	if(FD_ISSET(socket, &readfds))
 	{
@@ -143,7 +215,7 @@ void ServiceServer::SendTime(int& socket)
 	}
 }
 
-void ServiceServer::SendEcho(int& socket)
+void ServiceServer::SendTcpEcho(int& socket)
 {
 	if(FD_ISSET(socket, &readfds))
 	{
@@ -173,7 +245,6 @@ void ServiceServer::SendEcho(int& socket)
 bool ServiceServer::RespondToConnectionAttempt(int& socket)
 {
 	int bytesRead = read( socket , buffer, 1024);
-	//Somebody disconnected , get his details and print
 	if (bytesRead == 0)
 	{
 		getpeername(socket , (struct sockaddr*)&address , (socklen_t*)&addrlen);

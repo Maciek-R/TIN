@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <istream>
+#include <arpa/inet.h>
 
 enum class InterfaceType
 {
@@ -29,7 +30,9 @@ namespace Utils
 
 	std::string CalculateBroadCast(std::string ip, std::string subnetMask);
 
-	
+	int udpsock(int port, const char* addr);
+	int recvudp(unsigned char* buffer, int sock, const int size, sockaddr_in& SenderAddr, int& SenderAddrSize);
+	int sendudp(unsigned char* buffer, int size, sockaddr_in dest, int sock);
 };
 
 #endif

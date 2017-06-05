@@ -1,11 +1,54 @@
 #include "utils.h"
 #include <ifaddrs.h>
 #include <assert.h>
-#include <arpa/inet.h>
 #include <iostream>
 
 namespace Utils
 {
+	int udpsock(int port, const char* addr)
+	{
+		int handle = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP );
+
+		if (handle < 1)
+			return -1;
+
+		sockaddr_in address;
+		address.sin_family = AF_INET;
+		if (addr == INADDR_ANY)
+			address.sin_addr.s_addr = INADDR_ANY;
+		else
+			address.sin_addr.s_addr = inet_addr(addr);
+		address.sin_port = htons( (unsigned short) port );
+
+		if ( bind( handle, (const sockaddr*) &address, sizeof(sockaddr_in) ) < 0 )
+			return -1;
+
+		return handle;
+	}
+
+	int recvudp(unsigned char* buffer, int sock, const int size, sockaddr_in& SenderAddr, int& SenderAddrSize)
+	{
+		int retsize = recvfrom(sock, buffer, size, 0, (sockaddr*) &SenderAddr, (socklen_t*)&SenderAddrSize);
+
+		/*else*/ if (retsize < size)
+		{
+			buffer[retsize] = '\0';
+		}
+		return retsize;
+	}
+
+	int sendudp(unsigned char* buffer, int size, sockaddr_in dest, int sock)
+	{
+		int ret = sendto(sock,buffer,size,0, (sockaddr*)&dest,sizeof(dest));
+
+		if (ret == -1)
+		{
+			std::cout << "\nSend Error Code : \n";
+		}
+
+		return ret;
+	}
+
 
 	void LoadAddress(unsigned char * buffer, std::string adres, int from)
 	{
