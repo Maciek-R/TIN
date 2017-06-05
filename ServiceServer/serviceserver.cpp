@@ -270,6 +270,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data, std::string realAddres
 	{
 		if((int)newCheckSum[i] != ticket.GetCheckSum()[i])
 		{
+			std::cout << (int)newCheckSum[i] << " != " << ticket.GetCheckSum()[i] << "\n";
 			std::cout << "Sign of ticket is incorrect!\n";
 			return false;
 		}

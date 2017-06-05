@@ -21,6 +21,8 @@
 #include "../Common/utils.h"
 #include "../Common/network_object.h"
 
+#include <map>
+
 class Client : public NetworkObject
 {
 public:
@@ -45,7 +47,7 @@ private:
 	int bytesRead;
 	struct sockaddr_in address;
 	unsigned char buffer[1024];
-	Ticket ticket;
+	std::map<int, Ticket> tickets;
 
 	unsigned char clientInfo[57];
 
@@ -55,7 +57,7 @@ private:
 	bool SendBroadcastMessage();
 	bool ReceiveTicketServerAddress();
 
-	bool ShowTicketToServer();
+	bool ShowTicketToServer(int serviceID);
 
 	bool InitSocketWithTicketServer();
 	bool SendRequestForTicket();

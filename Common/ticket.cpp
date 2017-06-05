@@ -2,9 +2,13 @@
 #include <iostream>
 
 Ticket::Ticket()
-{}
+	: isEmpty{true}
+{
+
+}
 
 Ticket::Ticket(unsigned char* buffer) ///WAŻNE - UWZGLEDNIAM JAKIS 1 BAJT WIEC PRZESUNIETE
+	: isEmpty{false}
 {
 	SetClientAddress(Utils::ToString(buffer, 0, 4));
 	SetServiceAddress(Utils::ToString(buffer, 4, 8));
@@ -51,35 +55,6 @@ void Ticket::SetServiceId(unsigned char id)
 {
 	serviceId = id;
 }
-/*
-<<<<<<< HEAD
-unsigned char * Ticket::GetAsBuffor(int &size)  //wyjebac!
-{
-	size = 45;
-	unsigned char * mess = new unsigned char[size];	//rozmiar sie zmieni potem
-	Utils::LoadAddress(mess, clientAddress, 0);
-	Utils::LoadAddress(mess, serviceAddress, 4);
-
-	mess[8] = 8;	//tu zmienic
-	mess[9] = 8;	//na metode ktora zamienia inta na 4 bajty
-	mess[10] = 8;
-	mess[11] = 9;
-
-	mess[12] = serviceId;
-	
-	std::string validateTime = std::to_string(10);
-	Utils::InsertStringToCharTable(mess, validateTime, 14, 29);
-
-	for(unsigned int i = 0; i < 16 ; ++i)
-	{
-		mess[30+i] = checkSum[i];
-	}
-
-	return mess;
-}
-=======
->>>>>>> 9c6fa327c07c5e68d833ecdc72c49cc159990f66
-*/
 
 void Ticket::SetCheckSum(std::vector<int> checkSum)
 {
@@ -163,4 +138,9 @@ std::vector<int> Ticket::GetCheckSum()
 int Ticket::GetValidTime()
 {
 	return validTime;
+}
+
+bool Ticket::IsEmpty()
+{
+	return isEmpty;
 }

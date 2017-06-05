@@ -5,7 +5,8 @@
 
 
 Client::Client()
-	: CLIENT_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, BROADCAST_PORT{8888}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(CLIENT_ADDRESS, "255.255.255.0")}, mainSocket{-1}, bytesRead{-1}, ticket{}
+	: CLIENT_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)}, BROADCAST_PORT{8888}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(CLIENT_ADDRESS, "255.255.255.0")}, mainSocket{-1}, bytesRead{-1},
+	  tickets{ {1, Ticket{}}, {2, Ticket{}}, {3, Ticket{}}, {4, Ticket{}} }
 {
 		std::cout << CLIENT_ADDRESS << "\n";
 		std::cout << BROADCAST_ADDRESS << "\n";
@@ -117,8 +118,10 @@ bool Client::ReceiveTicket()
 
 	if(buffer[0] == 1)
 	{
-		ticket = Ticket{buffer+1};
-		std::cout << "Ticket " << ticket.GenerateTicketInString() << "\n";
+		//ticket = Ticket{buffer+1};
+		Ticket newTicket = Ticket{buffer+1};
+		tickets[newTicket.GetServiceId()] = newTicket;
+		std::cout << "Ticket " << newTicket.GenerateTicketInString() << "\n";
 
 		serviceAddress = Utils::ToString(buffer, 5, 9);
 		servicePort = Utils::ToInt(buffer, 9, 13);
@@ -158,9 +161,12 @@ void Client::ReadInitMessage()
 bool Client::RunService(int numService)
 {
 	assert(numService >= 1 && numService <= 4);
-	LoadClientInfo(numService);
-	assert(GetTicketServerAddress());
-	assert(GetTicket());
+	if(tickets[numService].IsEmpty())
+	{
+		LoadClientInfo(numService);
+		assert(GetTicketServerAddress());
+		assert(GetTicket());
+	}
 	switch(numService)
 	{
 		case 1: SendTcpEcho(); break;
@@ -171,7 +177,7 @@ bool Client::RunService(int numService)
 
 }
 
-bool Client::ShowTicketToServer()
+bool Client::ShowTicketToServer(int serviceID)
 {
 	if( (mainSocket = socket(AF_INET , SOCK_STREAM , 0)) == -1)
 	{
@@ -190,8 +196,9 @@ bool Client::ShowTicketToServer()
 
 	char message[1024];
 	int size = 45;
-	unsigned char * buff = ticket.Serialize();
+	unsigned char * buff = tickets[serviceID].Serialize();
 
+	std::cout << "Requesting service: " << serviceID << " " << tickets[serviceID].GetServiceId() << "\n";
 	for(int i=0; i<size; ++i)
 		message[i] = buff[i];
 
@@ -234,10 +241,13 @@ bool Client::ShowTicketToServer()
 
 bool Client::SendTcpEcho()
 {
-	while(!ShowTicketToServer())
+	const int serviceID = 1;
+	while(!ShowTicketToServer(serviceID))
 	{
 		std::cout << "Cannot continue sending echo\n";
-		GetTicket();
+		LoadClientInfo(serviceID);
+		assert(GetTicketServerAddress());
+		assert(GetTicket());
 	}
 
 	char message[1024];
@@ -280,10 +290,13 @@ bool Client::SendTcpEcho()
 }
 bool Client::SendTcpTime()
 {
-	while(!ShowTicketToServer())
+	const int serviceID = 2;
+	while(!ShowTicketToServer(serviceID))
 	{
 		std::cout << "Cannot continue sending time\n";
-		GetTicket();
+		LoadClientInfo(serviceID);
+		assert(GetTicketServerAddress());
+		assert(GetTicket());
 	}
 
 	std::string message = "TimeRequest";
