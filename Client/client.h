@@ -71,6 +71,9 @@ private:
 	bool SendUdpEcho();
 	bool SendUdpTime();
 
+	bool SendUdpTicket(int serviceID);
+	bool SendTcpTicket(int serviceID);
+
 	void LoadClientInfo(int serviceID);
 	
 	void LoadUserDataFromConsole();

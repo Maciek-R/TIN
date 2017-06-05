@@ -153,7 +153,6 @@ void ServiceServer::SendUdpTime(int& socket)
 		}
 		message[time.size()] = '\0';
 
-		//std::cout << "UDP echo: " << message << "\n";
 		if(Utils::sendudp(message, 1024, address, socket) == -1)
 			std::cout << "Sending UDP time error\n";
 		else

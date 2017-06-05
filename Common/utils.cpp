@@ -30,7 +30,7 @@ namespace Utils
 	{
 		int retsize = recvfrom(sock, buffer, size, 0, (sockaddr*) &SenderAddr, (socklen_t*)&SenderAddrSize);
 
-		/*else*/ if (retsize < size)
+		if (retsize < size)
 		{
 			buffer[retsize] = '\0';
 		}
@@ -152,7 +152,7 @@ namespace Utils
 		{
 			if (ifa ->ifa_addr->sa_family==AF_INET)
 			{
-				tmpAddrPtr = &(/*(struct sockaddr_in *)*/reinterpret_cast<sockaddr_in*>(ifa->ifa_addr))->sin_addr;
+				tmpAddrPtr = &(reinterpret_cast<sockaddr_in*>(ifa->ifa_addr))->sin_addr;
 				char addressBuffer[INET_ADDRSTRLEN];
 				inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
 				std::string interfaceName{ifa->ifa_name};
