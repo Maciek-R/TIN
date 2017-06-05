@@ -18,6 +18,7 @@
 #include <array>
 #include "../Common/network_object.h"
 #include <map>
+#include <openssl/aes.h>
 
 enum class ServiceType
 {
@@ -50,7 +51,7 @@ private:
 	fd_set readfds;
 	
 	std::map<std::string, long> timeouts;
-	
+	AES_KEY decryptionKey;
 
 	std::string ToString(unsigned char*, int from, int to);
 

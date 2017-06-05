@@ -12,6 +12,9 @@ ServiceServer::ServiceServer(int serviceID, int port)
 	ListenMainSocket();
 
 	CreateBroadcastSocket();
+
+	unsigned char keyText[] = "whateverwhatever\0";
+	AES_set_decrypt_key(keyText, 128, &decryptionKey);
 }
 
 ServiceServer::~ServiceServer()
@@ -184,12 +187,13 @@ bool ServiceServer::RespondToConnectionAttempt(int& socket)
 	{
 		buffer[bytesRead] = '\0';
 
-		Ticket ticket{buffer};
+		unsigned char decryptedTicket[1024];
+		AES_decrypt(buffer, decryptedTicket, &decryptionKey);
+		Ticket ticket{decryptedTicket};
+		std::cout << "Ticket decrypted\n";
 
-		//sockaddr_in tempAddress;
-		//int tempAddrlen;
 		getpeername(socket , (struct sockaddr*)&address , (socklen_t*)&addrlen);
-		if(AuthorizeClient(buffer, inet_ntoa(address.sin_addr)))///*Tutaj walidacja*/ ticket.GenerateTicketInString().size() > 0)
+		if(AuthorizeClient(decryptedTicket, inet_ntoa(address.sin_addr)))///*Tutaj walidacja*/ ticket.GenerateTicketInString().size() > 0)
 		{
 
 			std::cout << "Client ticket: " << ticket.GenerateTicketInString() << "\n";
@@ -366,7 +370,6 @@ bool ServiceServer::ValidateTimeOut(std::string address, time_t timeout)
 	{
 		if(timeouts[address] < currentTime)
 		{
-			//std::cout << "Ticket is invalid! (timeout)\n";
 			timeouts.erase(address);
 			return false;
 		}

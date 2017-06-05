@@ -15,6 +15,7 @@ Client::Client()
 
 		unsigned char keyText[] = "whateverwhatever\0";
 		AES_set_decrypt_key(keyText, 128, &decryptionKey);
+		AES_set_encrypt_key(keyText, 128, &encryptionKey);
 }
 
 Client::~Client()
@@ -206,14 +207,15 @@ bool Client::ShowTicketToServer(int serviceID)
 	unsigned char * buff = tickets[serviceID].Serialize();
 
 	std::cout << "Requesting service: " << serviceID << " " << tickets[serviceID].GetServiceId() << "\n";
-	for(int i=0; i<size; ++i)
-		message[i] = buff[i];
 
-	message[size ] = '\0';
+	buff[size] = '\0';
 
 	std::cout << size  << "\n";
 
-	if(write(mainSocket, message, size +1) == -1)
+	unsigned char encryptedTicket[1024];
+	AES_encrypt(buff, encryptedTicket, &encryptionKey);
+
+	if(write(mainSocket, /*message*/encryptedTicket, size +1) == -1)
 	{
 		std::cerr << "Sending Ticket to ServiceServer Error\n";
 		std::terminate();

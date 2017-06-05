@@ -52,6 +52,7 @@ private:
 
 	unsigned char clientInfo[57];
 	AES_KEY decryptionKey;
+	AES_KEY encryptionKey;
 
 	void ReadInitMessage();
 
