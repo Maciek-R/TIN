@@ -184,7 +184,11 @@ void ServiceServer::RespondToConnectionAttempt(int& socket)
 		buffer[bytesRead] = '\0';
 
 		Ticket ticket{buffer};
-		if(/*Tutaj walidacja*/ ticket.GenerateTicketInString().size() > 0)
+
+		//sockaddr_in tempAddress;
+		//int tempAddrlen;
+		getpeername(socket , (struct sockaddr*)&address , (socklen_t*)&addrlen);
+		if(AuthorizeClient(buffer, inet_ntoa(address.sin_addr)))///*Tutaj walidacja*/ ticket.GenerateTicketInString().size() > 0)
 		{
 
 			std::cout << "Client ticket: " << ticket.GenerateTicketInString() << "\n";
@@ -277,6 +281,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data, std::string realAddres
 		return false;
 	}
 	
+	std::cout << "Authorization passed\n";
 	return true;
 }
 
