@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 
+
 TicketServer::TicketServer()
 	: serviceDataBaseManager{"serversdatabase"},PORT{8888}, SERVICE_ADDRESS_1{"127.0.0.1"}, TICKET_SERVER_ADDRESS{Utils::DetectIP(NetworkObject::interfaceType)},
 	  BROADCAST_PORT{8886}, BROADCAST_ADDRESS{Utils::CalculateBroadCast(TICKET_SERVER_ADDRESS, "255.255.255.0")},
@@ -10,7 +11,9 @@ TicketServer::TicketServer()
 {
 	CreateMainSocket();
 	BindMainSocket();
-	//InitBroadcastSocket(1);
+
+	unsigned char keyText[] = "whateverwhatever\0";
+	AES_set_encrypt_key(keyText, 128, &encryptionKey);
 }
 
 TicketServer::~TicketServer()
@@ -150,7 +153,25 @@ void TicketServer::AnswerOnRequestForTicket(bool isClientAuthorized, unsigned ch
 
 	if(isClientAuthorized)
 	{
-		if(sendto(mainSocket, serviceInfo, 46, 0, (struct sockaddr *) &address, sizeof(address)) != 46)
+		unsigned char plainText[1024];
+//		Utils::LoadAddress(plainText, ClientAddress, 0);
+		unsigned char encryptedText[1024];
+		//unsigned char ufo[12];
+		//memcpy((char*)ufo, "wsad\0", 5);
+		encryptedText[0] = serviceInfo[0];
+		AES_encrypt(serviceInfo+1, encryptedText+1, &encryptionKey);
+		//encryptedText[ClientAddress.size()] = 0;
+		//std::string text{reinterpret_cast<const char*>(encryptedText)};
+		//std::cout << "Encrypted address " << text << " Size: " << text.size() << " " << ClientAddress.size() << "\n";
+//		unsigned char decryptedText[4];
+//		encryptedText[5] = 0;
+//		unsigned char keyText[] = "whateverwhatever\0";
+//		AES_KEY decryptionKey;
+//		AES_set_decrypt_key(keyText, 128, &decryptionKey);
+//		AES_decrypt(encryptedText, decryptedText, &decryptionKey);
+		//std::cout << "Decrypted address " << (int)decryptedText[0] << (int)decryptedText[1] << (int)decryptedText[2] << (int)decryptedText[3] << "\n";
+
+		if(sendto(mainSocket, /*serviceInfo*/encryptedText, 46, 0, (struct sockaddr *) &address, sizeof(address)) != 46)
 		{
 			std::cerr << "Sending ServiceAddress Error\n";
 		}	
@@ -170,7 +191,7 @@ void TicketServer::AnswerOnRequestForTicket(bool isClientAuthorized, unsigned ch
 Ticket TicketServer::CreateTicket(unsigned char serviceId, std::pair <int, std::string> details)
 {
 	Ticket ticket;
-	
+
 	ticket.SetClientAddress(ClientAddress);
 	ticket.SetServiceAddress(details.second);
 	ticket.SetServicePort(details.first);

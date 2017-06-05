@@ -12,6 +12,9 @@ Client::Client()
 {
 		std::cout << CLIENT_ADDRESS << "\n";
 		std::cout << BROADCAST_ADDRESS << "\n";
+
+		unsigned char keyText[] = "whateverwhatever\0";
+		AES_set_decrypt_key(keyText, 128, &decryptionKey);
 }
 
 Client::~Client()
@@ -121,15 +124,17 @@ bool Client::ReceiveTicket()
 	if(buffer[0] == 1)
 	{
 		//ticket = Ticket{buffer+1};
-		Ticket newTicket = Ticket{buffer+1};
+		unsigned char decryptedTicket[1024];
+		AES_decrypt(buffer+1, decryptedTicket, &decryptionKey);
+		Ticket newTicket = Ticket{decryptedTicket};//Ticket{buffer+1};
 		tickets[newTicket.GetServiceId()] = newTicket;
 		std::cout << "Ticket " << newTicket.GenerateTicketInString() << "\n";
 
-		serviceAddresses[newTicket.GetServiceId()] = Utils::ToString(buffer, 5, 9);
-		servicePorts[newTicket.GetServiceId()] = Utils::ToInt(buffer, 9, 13);
+		serviceAddresses[newTicket.GetServiceId()] = newTicket.GetServiceAddress();//Utils::ToString(decryptedTicket, 4, 8);
+		servicePorts[newTicket.GetServiceId()] = newTicket.GetServicePort();//Utils::ToInt(decryptedTicket, 8, 12);
 
 		std::cout << "Got Message from TicketServer. Service Address is: "<<serviceAddresses[newTicket.GetServiceId()]<<" Service Port: "<< servicePorts[newTicket.GetServiceId()]
-					<<"time: " << buffer[14] << buffer[15]<<"\n";
+					<<"time: " <<  static_cast<int>(decryptedTicket[13]) << static_cast<int>(decryptedTicket[14]) <<"\n";
 		
 		return true;
 	}

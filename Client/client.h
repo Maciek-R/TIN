@@ -22,6 +22,7 @@
 #include "../Common/network_object.h"
 
 #include <map>
+#include <openssl/aes.h>
 
 class Client : public NetworkObject
 {
@@ -50,6 +51,7 @@ private:
 	std::map<int, Ticket> tickets;
 
 	unsigned char clientInfo[57];
+	AES_KEY decryptionKey;
 
 	void ReadInitMessage();
 

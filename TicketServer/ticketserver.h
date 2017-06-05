@@ -22,6 +22,7 @@
 #include "../Common/network_object.h"
 #include <openssl/sha.h>
 #include <map>
+#include <openssl/aes.h>
 
 
 enum class RequestType
@@ -52,6 +53,7 @@ private:
 	int broadcastAddrlen;
 	unsigned char buffer[1024];	
 	fd_set readfds;
+	AES_KEY encryptionKey;
 
 	unsigned char * serviceInfo;
 
