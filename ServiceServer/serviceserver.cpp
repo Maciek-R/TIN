@@ -289,7 +289,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data, std::string realAddres
 		return false;
 	}
 	
-	realAddress = "127.0.0.1";
+	//realAddress = "127.0.0.1";
 	if(realAddress != ticket.GetServiceAddress())
 	{
 		std::cout << "Addres of service is incorrect!\n";

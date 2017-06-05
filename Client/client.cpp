@@ -234,10 +234,10 @@ bool Client::ShowTicketToServer()
 
 bool Client::SendTcpEcho()
 {
-	if(!ShowTicketToServer())
+	while(!ShowTicketToServer())
 	{
 		std::cout << "Cannot continue sending echo\n";
-		return false;
+		GetTicket();
 	}
 
 	char message[1024];
@@ -280,10 +280,10 @@ bool Client::SendTcpEcho()
 }
 bool Client::SendTcpTime()
 {
-	if(!ShowTicketToServer())
+	while(!ShowTicketToServer())
 	{
 		std::cout << "Cannot continue sending time\n";
-		return false;
+		GetTicket();
 	}
 
 	std::string message = "TimeRequest";
