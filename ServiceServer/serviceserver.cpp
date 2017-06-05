@@ -141,6 +141,8 @@ void ServiceServer::SendTime(int& socket)
 
 void ServiceServer::SendEcho(int& socket)
 {
+	if(FD_ISSET(socket, &readfds))
+	{
 	int bytesRead = read( socket , buffer, 1024);
 
 	int i;
@@ -161,6 +163,7 @@ void ServiceServer::SendEcho(int& socket)
 		std::cout << "Echo sent\n";
 	close(socket);
 	socket = 0;
+	}
 }
 
 void ServiceServer::RespondToConnectionAttempt(int& socket)
