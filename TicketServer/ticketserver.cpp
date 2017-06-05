@@ -204,11 +204,12 @@ void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idServ
 		std::pair<int, std::string> details = serviceServersDetails[idService][rand()%serviceServersDetails[idService].size()];
 		
 		Ticket createdTicket = CreateTicket(idService, details);
-		unsigned char* ticketInChar = createdTicket.Serialize();
+		unsigned char serializedTicket[45];
+		createdTicket.Serialize(serializedTicket);
 		
 		for(size_t i = 0; i < 45; ++i)
 		{
-			mess[i+1] = ticketInChar[i];
+			mess[i+1] = serializedTicket[i];
 		}
 		
 		std::cout << "Ticket: ";

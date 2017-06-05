@@ -33,7 +33,7 @@ public:
 	void SetValidTime(int validTime);
 	int GetValidTime();
 	
-	unsigned char* Serialize();
+	void Serialize(unsigned char* serializedTicket);
 	
 	void GenerateCheckSum();
 	

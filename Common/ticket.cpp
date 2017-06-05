@@ -61,22 +61,22 @@ void Ticket::SetCheckSum(std::vector<int> checkSum)
 	this->checkSum = checkSum;
 }
 
-unsigned char* Ticket::Serialize()
+void Ticket::Serialize(unsigned char* serializedTicket)
 {
-	unsigned char * result = new unsigned char[45];
+	//unsigned char * result = new unsigned char[45];
 	
-	Utils::LoadAddress(result, clientAddress, 0);
-	Utils::LoadAddress(result, serviceAddress, 4);
-	Utils::InsertNumberToCharTable(result, servicePort, 8, 11); // check it
-	result[12] = serviceId;
-	Utils::InsertNumberToCharTableWithTerm(result, validTime, 13, 28);
+	Utils::LoadAddress(serializedTicket, clientAddress, 0);
+	Utils::LoadAddress(serializedTicket, serviceAddress, 4);
+	Utils::InsertNumberToCharTable(serializedTicket, servicePort, 8, 11); // check it
+	serializedTicket[12] = serviceId;
+	Utils::InsertNumberToCharTableWithTerm(serializedTicket, validTime, 13, 28);
 	
 	for(unsigned int i = 0; i < 16 ; ++i)
 	{
-		result[29+i] = checkSum[i];
+		serializedTicket[29+i] = checkSum[i];
 	}
 	
-	return result;
+	//return result;
 }
 
 void Ticket::SetValidTime(int validTime)

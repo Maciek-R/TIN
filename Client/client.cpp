@@ -204,7 +204,8 @@ bool Client::ShowTicketToServer(int serviceID)
 
 	char message[1024];
 	int size = 45;
-	unsigned char * buff = tickets[serviceID].Serialize();
+	unsigned char buff[1024];
+	tickets[serviceID].Serialize(buff);
 
 	std::cout << "Requesting service: " << serviceID << " " << tickets[serviceID].GetServiceId() << "\n";
 
