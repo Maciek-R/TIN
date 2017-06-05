@@ -101,7 +101,8 @@ void ServiceServer::Run()
 		//new Connection
 		if(FD_ISSET(mainSocket, &readfds))
 		{
-			AcceptNewConnection();
+			if(!AcceptNewConnection())
+				continue;
 		}
 
 		for(std::size_t i = 0; i < clientSockets.size(); ++i)
@@ -166,7 +167,7 @@ void ServiceServer::SendEcho(int& socket)
 	}
 }
 
-void ServiceServer::RespondToConnectionAttempt(int& socket)
+bool ServiceServer::RespondToConnectionAttempt(int& socket)
 {
 	int bytesRead = read( socket , buffer, 1024);
 	//Somebody disconnected , get his details and print
@@ -196,6 +197,7 @@ void ServiceServer::RespondToConnectionAttempt(int& socket)
 				std::cerr << "Cannot send a response\n";
 			else
 				std::cout << "Client authorized\n";
+			return true;
 		}
 		else
 		{
@@ -204,11 +206,12 @@ void ServiceServer::RespondToConnectionAttempt(int& socket)
 				std::cerr << "Cannot send a response\n";
 			else
 				std::cout << "Client not authorized\n";
+			return false;
 		}
 	}
 }
 
-void ServiceServer::AcceptNewConnection()
+bool ServiceServer::AcceptNewConnection()
 {
 	int newSocket;
 	newSocket = accept(mainSocket, (struct sockaddr*)&address, (socklen_t*)&addrlen);
@@ -220,8 +223,19 @@ void ServiceServer::AcceptNewConnection()
 	std::cout << "New Connection, socket fd is " << newSocket << "\n\tIP: " << inet_ntoa(address.sin_addr) << "\n\tPort: " << ntohs(address.sin_port) << "\n";
 
 
-	RespondToConnectionAttempt(newSocket);
-	SetNewSocket(newSocket);
+	if(RespondToConnectionAttempt(newSocket))
+	{
+		SetNewSocket(newSocket);
+		std::cout << "Connection accepted\n";
+		return true;
+	}
+	else
+	{
+		std::cout << "Connection not accepted\n";
+		return false;
+	}
+
+	return true;
 }
 
 void ServiceServer::SendMessage(int socket, const char * message) const
@@ -275,6 +289,7 @@ bool ServiceServer::AuthorizeClient(unsigned char * data, std::string realAddres
 		return false;
 	}
 	
+	realAddress = "127.0.0.1";
 	if(realAddress != ticket.GetServiceAddress())
 	{
 		std::cout << "Addres of service is incorrect!\n";

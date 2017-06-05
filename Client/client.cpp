@@ -171,7 +171,7 @@ bool Client::RunService(int numService)
 
 }
 
-void Client::ShowTicketToServer()
+bool Client::ShowTicketToServer()
 {
 	if( (mainSocket = socket(AF_INET , SOCK_STREAM , 0)) == -1)
 	{
@@ -218,13 +218,28 @@ void Client::ShowTicketToServer()
 	else
 	{
 		message[bytesRead] = '\0';
-		std::cout << "Authorization verdict: " << message << "\n";
+		std::cout << "Authorization verdict: " << message[0] << "\n";
+		if( message[0] == '0')
+		{
+			std::cout << "Ticket revoked\n";
+			return false;
+		}
+		else
+		{
+			std::cout << "Ticket accepted\n";
+		}
 	}
+	return true;
 }
 
 bool Client::SendTcpEcho()
 {
-	ShowTicketToServer();
+	if(!ShowTicketToServer())
+	{
+		std::cout << "Cannot continue sending echo\n";
+		return false;
+	}
+
 	char message[1024];
 	std::cout <<"Type Message: ";
 
@@ -265,7 +280,12 @@ bool Client::SendTcpEcho()
 }
 bool Client::SendTcpTime()
 {
-	ShowTicketToServer();
+	if(!ShowTicketToServer())
+	{
+		std::cout << "Cannot continue sending time\n";
+		return false;
+	}
+
 	std::string message = "TimeRequest";
 	if(write(mainSocket, message.c_str(), message.size()) == -1)
 	{
