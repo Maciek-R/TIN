@@ -69,6 +69,7 @@ private:
 	bool SendTcpEcho();
 	bool SendTcpTime();
 	bool SendUdpEcho();
+	bool SendUdpTime();
 
 	void LoadClientInfo(int serviceID);
 	

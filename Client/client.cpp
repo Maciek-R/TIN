@@ -180,7 +180,7 @@ bool Client::RunService(int numService)
 		case 1: SendTcpEcho(); break;
 		case 2: SendTcpTime(); break;
 		case 3: SendUdpEcho(); break;
-		case 4: break;
+		case 4: SendUdpTime(); break;
 	}
 
 }
@@ -297,11 +297,128 @@ bool Client::SendUdpEcho()
 	const int serviceID = 3;
 	while(!ShowTicketToServer(serviceID))
 	{
-		std::cout << "Cannot continue sending echo\n";
+		std::cout << "Cannot continue sending UDP echo\n";
 		LoadClientInfo(serviceID);
 		assert(GetTicketServerAddress());
 		assert(GetTicket());
 	}
+
+	unsigned char message[1024];
+	std::cout <<"Type Message: ";
+
+	std::string info;
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	std::getline(std::cin, info);
+
+	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+	if(sock == 0)
+	{
+		std::cout << "socket failed with error: \n";
+		return 1;
+	}
+
+	if(info.size() > 0)
+	{
+		for(int i = 0; i < info.size(); ++i)
+		{
+			message[i] = info[i];
+		}
+		message[info.size()] = '\0';
+
+		sockaddr_in dest;
+		dest.sin_family = AF_INET;
+		dest.sin_addr.s_addr = inet_addr(serviceAddresses[serviceID].c_str());
+		dest.sin_port = htons(servicePorts[serviceID]);
+
+		if(Utils::sendudp(message, 1024, dest, sock) == -1)
+		{
+			std::cerr << "Sending Ticket to ServiceServer Error\n";
+			std::terminate();
+		}
+		else
+		{
+			std::cout << "Echo message sent\n";
+		}
+	}
+	else
+	{
+		std::cerr << "Empty message!\n";
+		return false;
+	}
+
+	sockaddr_in receivedAddress;
+	int receivedAddrlen = sizeof(receivedAddress);
+	int bytesRead = Utils::recvudp(message, sock, 1024, receivedAddress, receivedAddrlen);
+	if(bytesRead > 0)
+	{
+		std::cout << "Echo: " << message << "\n";
+	}
+	else
+	{
+		std::cout << "Echo error\n";
+		return false;
+	}
+
+	return true;
+}
+
+bool Client::SendUdpTime()
+{
+	const int serviceID = 4;
+	while(!ShowTicketToServer(serviceID))
+	{
+		std::cout << "Cannot continue with UDP Time\n";
+		LoadClientInfo(serviceID);
+		assert(GetTicketServerAddress());
+		assert(GetTicket());
+	}
+
+	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
+	if(sock == 0)
+	{
+		std::cout << "socket failed with error: \n";
+		return 1;
+	}
+
+	unsigned char message[1024];
+	std::string info = "TimeRequest\n";
+	for(int i = 0; i < info.size(); ++i)
+	{
+		message[i] = info[i];
+	}
+	message[info.size()] = '\0';
+
+	sockaddr_in dest;
+	dest.sin_family = AF_INET;
+	dest.sin_addr.s_addr = inet_addr(serviceAddresses[serviceID].c_str());
+	dest.sin_port = htons(servicePorts[serviceID]);
+
+	if(Utils::sendudp(message, 1024, dest, sock) == -1)
+	{
+		std::cerr << "Sending Ticket to ServiceServer Error\n";
+		std::terminate();
+	}
+	else
+	{
+		std::cout << "Time request sent\n";
+	}
+
+	sockaddr_in receivedAddress;
+	int receivedAddrlen = sizeof(receivedAddress);
+	int bytesRead = Utils::recvudp(message, sock, 1024, receivedAddress, receivedAddrlen);
+	if(bytesRead > 0)
+	{
+		std::cout << "Echo: " << message << "\n";
+	}
+	else
+	{
+		std::cout << "Echo error\n";
+		return false;
+	}
+
+	return true;
 }
 
 bool Client::SendTcpEcho()

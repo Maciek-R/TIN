@@ -89,8 +89,6 @@ void ServiceServer::ListenMainSocket()
 
 bool ServiceServer::UdpRequestProcessing(int sock)
 {
-	//sockaddr_in clientAddr;
-	//int clientAddrLen = sizeof(clientAddr);
 	addrlen = sizeof(address);
 
 	unsigned char message[1024];
@@ -122,6 +120,47 @@ bool ServiceServer::UdpRequestProcessing(int sock)
 	}
 }
 
+void ServiceServer::SendUdpEcho(int& socket)
+{
+	unsigned char message[1024];
+	int bytesRead = Utils::recvudp(message, socket, 1024, address, addrlen);
+	if(bytesRead > 0)
+	{
+		std::cout << "UDP echo: " << message << "\n";
+		if(Utils::sendudp(message, 1024, address, socket) == -1)
+			std::cout << "Sending UDP echo error\n";
+		else
+			std::cout << "Echo sent\n";
+	}
+	else
+	{
+		std::cout << "Invalid message\n";
+	}
+}
+
+void ServiceServer::SendUdpTime(int& socket)
+{
+	unsigned char message[1024];
+
+	int bytesRead = Utils::recvudp(message, socket, 1024, address, addrlen);
+	if(bytesRead > 0)
+	{
+		std::string time = GetServerTime();
+
+		for(int i = 0; i < time.size(); ++i)
+		{
+			message[i] = time[i];
+		}
+		message[time.size()] = '\0';
+
+		//std::cout << "UDP echo: " << message << "\n";
+		if(Utils::sendudp(message, 1024, address, socket) == -1)
+			std::cout << "Sending UDP time error\n";
+		else
+			std::cout << "Udp time sent\n";
+	}
+}
+
 void ServiceServer::Run()
 {
 	std::cout << "Waiting for connections\n";
@@ -137,11 +176,11 @@ void ServiceServer::Run()
 			{
 				if(SERVICE_ID == 3)
 				{
-
+					SendUdpEcho(socket);
 				}
 				else
 				{
-
+					SendUdpTime(socket);
 				}
 			}
 		}

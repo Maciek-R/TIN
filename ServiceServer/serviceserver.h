@@ -70,7 +70,9 @@ private:
 
 	void SendTcpEcho(int& socket);
 	void SendTcpTime(int& socket);
-	//void SendUdpEcho
+	void SendUdpEcho(int& socket);
+	void SendUdpTime(int& socket);
+
 	std::string GetServerTime();
 	
 	bool ValidateTimeOut(std::string address, time_t timeout);
