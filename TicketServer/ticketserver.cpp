@@ -182,7 +182,7 @@ Ticket TicketServer::CreateTicket(unsigned char serviceId, std::pair <int, std::
 	ticket.SetServiceAddress(details.second);
 	ticket.SetServicePort(details.first);
 	ticket.SetServiceId(serviceId);
-	ticket.SetValidTime(83); //dafuq!!!? przy wartosci 10, cos dziwnego sie dzieje zapisuje jako 0 1
+	ticket.SetValidTime(83); 
 	ticket.GenerateCheckSum();
 	
 	return ticket;
@@ -196,7 +196,7 @@ void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idServ
 
 	if(isClientAuthorized)
 	{
-		mess = new unsigned char[46];//potwierdzenie + adres + port
+		mess = new unsigned char[46];
 
 		mess[0] = 1;
 
@@ -222,7 +222,7 @@ void TicketServer::LoadServiceInfo(bool isClientAuthorized, unsigned char idServ
 	}
 	else
 	{
-		mess = new unsigned char[1];//odmowa
+		mess = new unsigned char[1];
 		mess[0] = 0;
 	}
 
@@ -253,7 +253,7 @@ bool TicketServer::CheckClientInDatabase(unsigned char * data)
 		std::string pass;
 
 		bool isClientAuthorized = false;
-		while (getline(file, addr))//nie ma sprawdzania nazwy serwera oraz nazwy uslugi(baza tez ich nie uwzglednia)
+		while (getline(file, addr))
 		{
 			getline(file, login);
 			getline(file, pass);
@@ -262,8 +262,7 @@ bool TicketServer::CheckClientInDatabase(unsigned char * data)
 			std::cout << login << std::endl;
 			std::cout << pass << std::endl;
 
-			//for dev time we dont want to check address
-			if(/*clientAddress == addr && */clientLogin == login && clientPassword == pass)
+			if(clientLogin == login && clientPassword == pass)
 			{
 				isClientAuthorized = true;
 				break;
@@ -273,10 +272,6 @@ bool TicketServer::CheckClientInDatabase(unsigned char * data)
 		}
 
 		file.close();
-
-		//service authorization
-//		if(isClientAuthorized)
-//			isClientAuthorized = serviceDataBaseManager.IsServiceInDataBase(data[55], data[56]);
 
 		if(isClientAuthorized)
 			std::cout << "Found client in database" <<std::endl;

@@ -5,36 +5,6 @@
 
 int main(int argc , char** argv)
 {
-
-//	int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-//	if(sock == 0)
-//	{
-//		std::cout << "socket failed with error: \n";
-//		return 1;
-//	}
-
-//	unsigned short Port = 27015;
-
-//	sockaddr_in dest;
-//	dest.sin_family = AF_INET;
-//	dest.sin_addr.s_addr = inet_addr("127.0.0.1");
-//	dest.sin_port = htons(Port);
-
-//	Utils::sendudp("Hello from client!", dest, sock);
-
-//	sockaddr_in RecvAddr;
-//	int recvaddrlen = sizeof(RecvAddr);
-
-//	std::cout << "Received message from the server: " << Utils::recvudp(sock, 1024, RecvAddr, recvaddrlen) << "\n";
-
-//	std::cout << "Closing socket...\n";
-
-//	close(sock);
-
-
-
-
 	Client client; 
 
 	int serviceID;

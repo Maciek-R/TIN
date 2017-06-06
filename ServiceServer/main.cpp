@@ -16,24 +16,6 @@ void ufo(int s)
 
 int main(int argc , char *argv[])
 {
-//	const int SERVER_PORT = 27015;
-//	int sock = Utils::udpsock(SERVER_PORT, "127.0.0.1");
-//	std::cout << "Waiting for datagram on port: " << SERVER_PORT << "\n";
-
-//	while(true)
-//	{
-//		sockaddr_in clientAddr;
-//		int clientAddrLen = sizeof(clientAddr);
-
-//		std::string message = Utils::recvudp(sock, 1024, clientAddr, clientAddrLen);
-//		if(message != "dupa")
-//		{
-//			std::cout << "Received message from the client: " << message << "\n";
-//			Utils::sendudp("Hello from server!", clientAddr, sock);
-//		}
-//	}
-//	return 0;
-
 	unsigned char in[12];
 	unsigned char encrypted[12];
 	unsigned char out[12];

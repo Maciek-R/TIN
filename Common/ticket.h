@@ -38,7 +38,6 @@ public:
 	void GenerateCheckSum();
 	
 	bool IsEmpty();
-	//std::string GenerateTicketInString();
 
 	std::string GenerateTicketInString();
 private:
@@ -46,7 +45,6 @@ private:
 	std::string serviceAddress;
 	int servicePort;
 	int serviceId;
-	//std::string validateTime; //in seconds
 	int validTime;
 	std::vector<int> checkSum;
 	bool isEmpty;

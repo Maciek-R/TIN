@@ -124,15 +124,14 @@ bool Client::ReceiveTicket()
 
 	if(buffer[0] == 1)
 	{
-		//ticket = Ticket{buffer+1};
 		unsigned char decryptedTicket[1024];
 		AES_decrypt(buffer+1, decryptedTicket, &decryptionKey);
-		Ticket newTicket = Ticket{decryptedTicket};//Ticket{buffer+1};
+		Ticket newTicket = Ticket{decryptedTicket};
 		tickets[newTicket.GetServiceId()] = newTicket;
 		std::cout << "Ticket " << newTicket.GenerateTicketInString() << "\n";
 
-		serviceAddresses[newTicket.GetServiceId()] = newTicket.GetServiceAddress();//Utils::ToString(decryptedTicket, 4, 8);
-		servicePorts[newTicket.GetServiceId()] = newTicket.GetServicePort();//Utils::ToInt(decryptedTicket, 8, 12);
+		serviceAddresses[newTicket.GetServiceId()] = newTicket.GetServiceAddress();
+		servicePorts[newTicket.GetServiceId()] = newTicket.GetServicePort();
 
 		std::cout << "Got Message from TicketServer. Service Address is: "<<serviceAddresses[newTicket.GetServiceId()]<<" Service Port: "<< servicePorts[newTicket.GetServiceId()]
 					<<"time: " <<  static_cast<int>(decryptedTicket[13]) << static_cast<int>(decryptedTicket[14]) <<"\n";
@@ -187,7 +186,7 @@ bool Client::RunService(int numService)
 
 bool Client::SendTcpTicket(int serviceID)
 {
-	if( (mainSocket = socket(AF_INET , SOCK_STREAM/*SOCK_DGRAM*/ , 0)) == -1)
+	if( (mainSocket = socket(AF_INET , SOCK_STREAM, 0)) == -1)
 	{
 		std::cerr << "Creating socket error\n";
 		std::terminate();
@@ -216,7 +215,7 @@ bool Client::SendTcpTicket(int serviceID)
 	unsigned char encryptedTicket[1024];
 	AES_encrypt(buff, encryptedTicket, &encryptionKey);
 
-	if(write(mainSocket, /*buff*/encryptedTicket, size +1) == -1)
+	if(write(mainSocket, encryptedTicket, size +1) == -1)
 	{
 		std::cerr << "Sending Ticket to ServiceServer Error\n";
 		std::terminate();
@@ -520,12 +519,12 @@ bool Client::SendTcpTime()
 void Client::LoadClientInfo(int serviceID)
 {
 	std::cout << "Loaded\n";
-	clientInfo[0] = 2;	//ticket request
+	clientInfo[0] = 2;
 
 	Utils::LoadAddress(clientInfo, CLIENT_ADDRESS, 1);
 	LoadUserDataFromConsole();
 
-	clientInfo[55] = 0;//It was supposed to be server name but it was idiotic idea
+	clientInfo[55] = 0;
 	clientInfo[56] = serviceID;
 }
 

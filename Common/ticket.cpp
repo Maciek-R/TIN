@@ -7,7 +7,7 @@ Ticket::Ticket()
 
 }
 
-Ticket::Ticket(unsigned char* buffer) ///WAŻNE - UWZGLEDNIAM JAKIS 1 BAJT WIEC PRZESUNIETE
+Ticket::Ticket(unsigned char* buffer) 
 	: isEmpty{false}
 {
 	SetClientAddress(Utils::ToString(buffer, 0, 4));
@@ -62,12 +62,10 @@ void Ticket::SetCheckSum(std::vector<int> checkSum)
 }
 
 void Ticket::Serialize(unsigned char* serializedTicket)
-{
-	//unsigned char * result = new unsigned char[45];
-	
+{	
 	Utils::LoadAddress(serializedTicket, clientAddress, 0);
 	Utils::LoadAddress(serializedTicket, serviceAddress, 4);
-	Utils::InsertNumberToCharTable(serializedTicket, servicePort, 8, 11); // check it
+	Utils::InsertNumberToCharTable(serializedTicket, servicePort, 8, 11);
 	serializedTicket[12] = serviceId;
 	Utils::InsertNumberToCharTableWithTerm(serializedTicket, validTime, 13, 28);
 	
@@ -76,7 +74,6 @@ void Ticket::Serialize(unsigned char* serializedTicket)
 		serializedTicket[29+i] = checkSum[i];
 	}
 	
-	//return result;
 }
 
 void Ticket::SetValidTime(int validTime)

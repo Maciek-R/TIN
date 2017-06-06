@@ -81,7 +81,6 @@ namespace Utils
 		return ss.str();
 	}
 
-	//ucina reszte po napotkaniu pierwszego bajtu==0
 	std::string ToStr(unsigned char * buff, int from, int to)
 	{
 		std::stringstream ss;
@@ -241,7 +240,7 @@ namespace Utils
 
 		return a;
 	}
-	//zawsze 0 na koncu, w ostatecznosci na limicie
+
 	void InsertNumberToCharTableWithTerm(unsigned char* charTable, long number, int start, int limit)
 	{
 		std::string numberAsAString = std::to_string(number);

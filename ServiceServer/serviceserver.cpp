@@ -302,7 +302,7 @@ bool ServiceServer::RespondToConnectionAttempt(int& socket)
 		std::cout << "Ticket decrypted\n";
 
 		getpeername(socket , (struct sockaddr*)&address , (socklen_t*)&addrlen);
-		if(AuthorizeClient(decryptedTicket, inet_ntoa(address.sin_addr)))///*Tutaj walidacja*/ ticket.GenerateTicketInString().size() > 0)
+		if(AuthorizeClient(decryptedTicket, inet_ntoa(address.sin_addr)))
 		{
 
 			std::cout << "Client ticket: " << ticket.GenerateTicketInString() << "\n";
@@ -378,17 +378,6 @@ bool ServiceServer::AuthorizeClient(unsigned char * data, std::string realAddres
 	unsigned char hash[16];
 	unsigned char* newCheckSum = SHA1((unsigned char*)(ticketAsString.c_str()), ticketAsString.size(), hash);
 	
-	//sign
-//	for(unsigned int i = 0; i < 16 ; ++i)
-//	{
-//		if((int)newCheckSum[i] != ticket.GetCheckSum()[i])
-//		{
-//			std::cout << (int)newCheckSum[i] << " != " << ticket.GetCheckSum()[i] << "\n";
-//			std::cout << "Sign of ticket is incorrect!\n";
-//			return false;
-//		}
-//	}
-	
 	std::cout << "Got request for " << ticket.GetServiceId()  << ". Can handle " << SERVICE_ID << ". My port: " << PORT << "\n";
 	//idservice
 	if(SERVICE_ID != ticket.GetServiceId())
@@ -404,7 +393,6 @@ bool ServiceServer::AuthorizeClient(unsigned char * data, std::string realAddres
 		return false;
 	}
 	
-	//realAddress = "127.0.0.1";
 	std::cout << realAddress << " " << ticket.GetClientAddress() << "\n";
 	if(realAddress != ticket.GetClientAddress())
 	{
